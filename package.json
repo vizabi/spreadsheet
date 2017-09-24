@@ -1,0 +1,34 @@
+{
+  "name": "vizabi-spreadsheet",
+  "version": "1.0.0",
+  "description": "Spreadsheet tool for Vizabi",
+  "main": "build/spreadsheet.js",
+  "keywords": [],
+  "author": "",
+  "files": [
+    "build"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vizabi/vizabi-spreadsheet.git"
+  },
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/vizabi/vizabi-spreadsheet/issues"
+  },
+  "homepage": "https://github.com/vizabi/vizabi-spreadsheet#readme",
+  "scripts": {
+    "start": "webpack-dev-server",
+    "link": "npm link ../vizabi",
+    "build": "cross-env NODE_ENV=production webpack --progress",
+    "deploy": "tool-deploy"
+  },
+  "devDependencies": {
+    "cross-env": "^5.0.1",
+    "vizabi": "^0.25.0-4",
+    "vizabi-tool-bundler": "github:vizabi/vizabi-tool-bundler"
+  },
+  "dependencies": {
+    "xlsx": "0.11.4"
+  }
+}

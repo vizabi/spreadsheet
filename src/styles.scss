@@ -1,0 +1,132 @@
+@import "~bourbon/app/assets/stylesheets/bourbon";
+@import "~vizabi/src/assets/styles/mixins";
+@import "~vizabi/src/assets/styles/common";
+@import "~vizabi/src/assets/styles/chart";
+
+.vzb-tool {
+  
+  .vzb-spreadsheet {
+    @extend %vzb-chart-wrapper;
+    
+    #vzb-spreadsheet-list{
+      padding: 20px;
+      width: 100%;
+      height: 100%;
+      overflow-y: scroll;
+      overflow-x: hidden;
+      
+      table tr {
+        cursor: pointer;
+        
+        &:hover {
+          background: $vzb-color-primary;
+          color: white;
+        }
+      }
+    }
+    
+    #vzb-spreadsheet-explorer{
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      display: none;
+      background-color: white;
+      
+      #vzb-spreadsheet-tabs {
+        height: 40px;
+        padding-top: 5px;
+        width: 100%;
+        border-bottom: 2px solid $vzb-gapminder-main;
+        
+        div {
+          display: inline-block;
+          padding: 5px 20px;
+          height: 35px;
+          cursor: pointer;
+          text-transform: uppercase;
+          
+          &.vzb-active {
+            font-weight: bold;
+            background: $vzb-gapminder-main;
+          }
+        }
+        
+        div.vzb-close-x{
+          position: absolute;
+          top: 0;
+          right: 0;
+        }
+      }
+      
+      #vzb-spreadsheet-content {
+        height: calc(100% - 35px);
+        width: 100%;
+        
+        div#about, div#download {
+          padding: 20px;
+          .vzb-spreadsheet-conceptkey {
+            font-style: italic;
+            padding-bottom: 5px;
+          }
+          .vzb-spreadsheet-conceptvalue {
+            padding-bottom: 20px;
+            padding-top: 5px;
+          }
+          
+          overflow-x: hidden;
+          overflow-y: auto;
+          width: 100%;
+          height: 100%;
+          
+          div {
+            width: 100%;
+            white-space: normal;
+          }
+        }
+        
+        div#data {
+          width: 100%;
+          height: 100%;
+          overflow-x: auto;
+          overflow-y: auto;
+        }
+      }
+    }
+  }
+  
+  table {
+    width: 100%;
+    tr {
+      line-height: 2em;
+    }
+    tr:first-child {
+      font-weight: bold;
+      td {
+        border-bottom: 1px solid $vzb-color-primary;
+      }
+    }
+    .viz-spreadsheet-tablerow:nth-child(2n+3) {
+      background: $vzb-color-primary-lightest;
+    }
+    .viz-spreadsheet-datacell{
+      font-family: monospace;
+      text-align: right;
+      padding-left: 10px;
+    }
+  }
+  
+  
+  
+  
+  &.vzb-small {
+    font-size: 8px;
+  }
+  &.vzb-medium {
+    font-size: 12px;
+  }
+  &.vzb-large {
+    font-size: 16px;
+  }
+}
