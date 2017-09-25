@@ -21,9 +21,6 @@ export default Vizabi.Tool.extend("Spreadsheet", {
   default_model: {
     state:{
       time: {
-        startOrigin: 1800,
-        endOrigin: 2100,
-        dim: "time",
         autogenerate: {
           data: "data",
           conceptIndex: 0,
@@ -41,7 +38,6 @@ export default Vizabi.Tool.extend("Spreadsheet", {
       marker: {
         space: ["entities", "time"],
         hook: {
-          use: "indicator", 
           _important: true
         },
         label: {
