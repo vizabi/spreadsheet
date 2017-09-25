@@ -1,5 +1,5 @@
 import XLSX from "xlsx";
-
+import { saveAs } from "file-saver";
 
 const {
   Component,
@@ -94,7 +94,8 @@ const Spreadsheet = Component.extend("spreadsheet", {
       let viewData = _this.element.select("#vzb-spreadsheet-content").select("#data");
       viewData.selectAll("table").remove();
       
-      var table = viewData.append("table");
+      var table = viewData.append("table")
+        .attr("id", "table_" + _this._id);
       steps = steps.filter((f) => {return _this.model.time.startSelected <= f && f <= _this.model.time.endSelected})
       
       keys.sort(function(b, a){ return d3.descending(values[_this.model.time.value].label[a[_this.KEY]], values[_this.model.time.value].label[b[_this.KEY]]) });
@@ -151,20 +152,39 @@ const Spreadsheet = Component.extend("spreadsheet", {
     let viewDl = this.element.select("#vzb-spreadsheet-content").select("#download");
     
     viewDl.selectAll("div").remove();
-    viewDl.selectAll("div").data(["csv", "xls"])
-      .enter().append("div").append("a").text(type=>type).on("click", type=>this._download(type));
-    
+    viewDl.selectAll("div").data(["csv", "xlsx"])
+      .enter().append("div").append("a").text(type=>type).on("click", type=>this._download(type, which));
   
     this._showTab();
   },
   
-  
-  _download(type){
-    console.log(type)
-  },
-  
+  _download(type, fileName){
+    function s2ab(s) {
+      if(typeof ArrayBuffer !== 'undefined') {
+        var buf = new ArrayBuffer(s.length);
+        var view = new Uint8Array(buf);
+        for (var i=0; i!=s.length; ++i) view[i] = s.charCodeAt(i) & 0xFF;
+        return buf;
+      } else {
+        var buf = new Array(s.length);
+        for (var i=0; i!=s.length; ++i) buf[i] = s.charCodeAt(i) & 0xFF;
+        return buf;
+      }
+    }
+    
+    function export_table_to_excel(id, type, fileName) {
+    var wb = XLSX.utils.table_to_book(document.getElementById(id), { sheet: fileName.slice(0, 31) });
+    var wbout = XLSX.write(wb, { bookType: type, bookSST: true, type: 'binary' });
+    var fName = `${fileName}.${type}`;
+    try {
+      saveAs(new Blob([s2ab(wbout)],{type:"application/octet-stream"}), fName);
+    } catch(e) { if(typeof console != 'undefined') console.log(e, wbout); }
+    return wbout;
+    }
 
-  
+    export_table_to_excel('table_' + this._id, type, fileName);    
+  },
+    
   _redraw() {
     const _this = this;
     

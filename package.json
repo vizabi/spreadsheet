@@ -29,6 +29,7 @@
     "vizabi-tool-bundler": "github:vizabi/vizabi-tool-bundler"
   },
   "dependencies": {
-    "xlsx": "0.11.4"
+    "xlsx": "0.11.4",
+    "file-saver": "^1.3.3"
   }
 }
