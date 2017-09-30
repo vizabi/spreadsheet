@@ -20,29 +20,15 @@ export default Vizabi.Tool.extend("Spreadsheet", {
 
   default_model: {
     state:{
-      time: {
-        autogenerate: {
-          data: "data",
-          conceptIndex: 0,
-          conceptType: "time"
-        }
-      },
-      entities: {
-        dim:"geo",
-        autogenerate: {
-          data: "data",
-          conceptIndex: 0,
-          conceptType: "entity_domain"
-        }
-      },
+      time: {},
+      entities: {},
       marker: {
         space: ["entities", "time"],
         hook: {
           _important: true
         },
         label: {
-          use: "property",
-          which: "name"
+          use: "property"
         }
       }
     },
