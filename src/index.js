@@ -11,7 +11,7 @@ export default Vizabi.Tool.extend("Spreadsheet", {
       {
         component,
         placeholder: ".vzb-tool-viz",
-        model: ["state.time", "state.entities", "state.marker", "locale", "ui", "data"]
+        model: ["state.time", "state.marker", "locale", "ui", "data"]
       }
     ];
 
@@ -20,15 +20,29 @@ export default Vizabi.Tool.extend("Spreadsheet", {
 
   default_model: {
     state:{
-      time: {},
-      entities: {},
+      time: {
+        "autoconfig": {
+          "type": "time"
+        }
+      },
+      entities: {
+        "autoconfig": {
+          "type": "entity_domain",
+          "excludeIDs": ["tag"]
+        }
+      },
       marker: {
         space: ["entities", "time"],
         hook: {
+          use: "indicator",
           _important: true
         },
         label: {
-          use: "property"
+          use: "property",
+          "autoconfig": {
+            "includeOnlyIDs": ["name"],
+            "type": "string"
+          }
         }
       }
     },

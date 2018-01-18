@@ -64,6 +64,31 @@
         height: calc(100% - 35px);
         width: 100%;
         
+        div#about .vzb-spreadsheet-select {
+          display: inline-block;
+          position: relative;
+          width: unset;
+          &::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 0;
+            border: .4em solid transparent;
+            border-top: .6em solid #425663;
+            top: calc(50% - .3em);
+            right: .2em;
+            pointer-events: none;
+          }
+
+          select {
+            -moz-appearance: none;
+            -webkit-appearance: none;
+            appearance: none;
+            font-size: inherit;
+            padding: .2em 1.2em .2em .2em;
+          }
+        }
+        
         div#about, div#download {
           padding: 20px;
           .vzb-spreadsheet-conceptkey {
