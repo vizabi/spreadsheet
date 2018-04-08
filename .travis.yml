@@ -2,7 +2,7 @@ language: node_js
 dist: trusty
 sudo: true
 node_js:
-- 7.5.0
+- 8
 addons:
   apt:
     packages:
@@ -34,12 +34,12 @@ script:
 deploy:
 - provider: npm
   skip_cleanup: true
-  email: kgrpwnz@gmail.com
+  email: konzeptmeister@gmail.com
   api_key:
-    secure: qG2/rttWoEfZ9b54+g0mAFZ9qZI7JbKq5RYqHQrzgHJs7CSFzcZ60d6V+DUFB/xlYBwfyvpXALkT8255gnlAodqRJnHqXveXU8hO8vk6PJF2VT8w4CtGnA0CaUnPnf56Se0o09jN2Rub8BTv6U9jjyFHBKt+nt1BgozV397iKpUNMzURq8TVZcmsrC37JSpF3PB6/znwFm1YeC3T1ymd0vTXkGdGdJLui5J4TbRzNkXZI3YsQLZJhzpfHvpUNpu0S0e1u37YBJgoH2zAC5XZrfUcZV1kR0b4ATyhVlpOYaVyWlPTM60AoNL0aR5NYD3Z3amURvu22pJPA6QVkhG9bSc7YJh7i2Z5VQB7dRI1Raz5mr+whh6IhrKKnVJ8NXzYEH/nrte9z+HhONWFUo+dEHOUcJ1cB16s0OZlCUR6vjlwLNLb3GvbJG7iITS7JDOZaXwRasEDSmDLd53iTELeAPz3hV6DHJAonr59nMjPJ5EXp0vKu61+KyfahfbQF4fAP+K28AKPYPk2EudMG+4z2tBW/ox9cm9fwdZ5X9hxb7ZhM8NMusQ7s79be9z2VIjkYOgJrGQkyuwx5KMurs2269vXurtQDYY6/tDXIpW+yZ1J4mMBVYKLNH47BTH12ApZQnZKULwOeeYs8xAPRCYpfaMANO4OPhJmFZOMiuHpR+4=
+    secure: TY1DWvEbEDyVe3Kgo4R9FEyWACi40JLkrD/r795rNv3Z0JiQvaAgO4m2hBHWqH4xxdGcAgnrdLaRiIaZcGxEONzQOHDS4yGEz+l8Yaiqee4sA5whu3v0I+wwnNeHcbNcGU30bUAczn7pgFGPEQ8t+WxWp0JRFAduPOuvC/b3i3w=
   on:
     branch: develop
-    node: 7.5.0
+    node: 8
     condition: "-e /tmp/deployment.flag"
 - provider: script
   skip_cleanup: true
