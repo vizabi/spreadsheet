@@ -1,6 +1,6 @@
 {
   "name": "vizabi-spreadsheet",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Spreadsheet tool for Vizabi",
   "main": "build/spreadsheet.js",
   "keywords": [],
@@ -25,7 +25,7 @@
   },
   "devDependencies": {
     "cross-env": "^5.0.1",
-    "vizabi": "^0.25.0-4",
+    "vizabi": "latest",
     "vizabi-tool-bundler": "github:vizabi/vizabi-tool-bundler"
   },
   "dependencies": {
