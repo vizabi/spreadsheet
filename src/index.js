@@ -1,5 +1,14 @@
 import "./styles.scss";
+import "./treemenu-extension.scss";
 import component from "./component";
+
+
+const treemenuExtension = Vizabi.Component.getCollection().treemenu.extend("treemenu-extension", {
+  init(config, context) {
+    this._super(config, context);
+    this.name = "treemenu-extension";
+  }
+})
 
 export default Vizabi.Tool.extend("Spreadsheet", {
 
@@ -12,7 +21,11 @@ export default Vizabi.Tool.extend("Spreadsheet", {
         component,
         placeholder: ".vzb-tool-viz",
         model: ["state.time", "state.marker", "locale", "ui", "data"]
-      }
+      },{
+        component: treemenuExtension,
+        placeholder: ".vzb-tool-treemenu",
+        model: ["state.marker", "state.time", "locale", "ui"]
+      } 
     ];
 
     this._super(placeholder, externalModel);
@@ -34,6 +47,7 @@ export default Vizabi.Tool.extend("Spreadsheet", {
       marker: {
         space: ["entities", "time"],
         hook: {
+          which: null,
           use: "indicator",
           _important: true
         },

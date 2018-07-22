@@ -8,156 +8,173 @@
   .vzb-spreadsheet {
     @extend %vzb-chart-wrapper;
     
-    #vzb-spreadsheet-list{
-      padding: 20px;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: white;
+    
+    
+    div#vzb-spreadsheet-title {
       width: 100%;
-      height: 100%;
-      overflow-y: scroll;
+      padding: 10px 20px;
+      cursor: pointer;
+      &:hover {
+        text-decoration: underline;
+      }
+      &::after {
+        margin-left: 3px;
+        content: '▾';
+      }
+    }
+
+    div#vzb-spreadsheet-about .vzb-spreadsheet-select {
+      display: inline-block;
+      position: relative;
+      width: unset;
+      &::after {
+        content: '';
+        position: absolute;
+        width: 0;
+        height: 0;
+        border: .4em solid transparent;
+        border-top: .6em solid #425663;
+        top: calc(50% - .3em);
+        right: .2em;
+        pointer-events: none;
+      }
+
+      select {
+        -moz-appearance: none;
+        -webkit-appearance: none;
+        appearance: none;
+        font-size: inherit;
+        padding: .2em 1.2em .2em .2em;
+      }
+    }
+
+    div#vzb-spreadsheet-about {
+      padding: 10px 20px;
+      .vzb-spreadsheet-conceptkey {
+        font-style: italic;
+        margin-right: 5px;
+      }
+      .vzb-spreadsheet-conceptvalue {
+        white-space: normal;
+      }
+
       overflow-x: hidden;
-      
-      table tr {
-        cursor: pointer;
-        
-        &:hover {
-          background: $vzb-color-primary;
-          color: white;
-        }
+      overflow-y: auto;
+      width: 100%;
+
+      div {
+        width: 100%;
+        padding-top: 3px;
+        padding-bottom: 3px;
       }
     }
     
-    #vzb-spreadsheet-explorer{
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      display: none;
-      background-color: white;
+    div#vzb-spreadsheet-actions {
+      padding: 10px 20px;
+      text-transform: uppercase;
       
-      #vzb-spreadsheet-tabs {
-        height: 40px;
-        padding-top: 5px;
-        width: 100%;
-        border-bottom: 2px solid $vzb-gapminder-main;
-        
-        div {
-          display: inline-block;
-          padding: 5px 20px;
-          height: 35px;
-          cursor: pointer;
-          text-transform: uppercase;
-          
-          &.vzb-active {
-            font-weight: bold;
-            background: $vzb-gapminder-main;
-          }
-        }
-        
-        div.vzb-close-x{
-          position: absolute;
-          top: 0;
-          right: 0;
+      div {
+        position: absolute;
+      }
+      
+      div.vzb-spreadsheet-viewas {
+        left: 20px;
+      }
+      
+      div.vzb-spreadsheet-downloadas {
+        right: 20px;
+      }
+      
+      a {
+        margin-left: 5px;
+        cursor: pointer;
+        text-decoration: none;
+        &:hover {
+          text-decoration: underline;
         }
       }
       
-      #vzb-spreadsheet-content {
-        height: calc(100% - 35px);
-        width: 100%;
-        
-        div#about .vzb-spreadsheet-select {
-          display: inline-block;
-          position: relative;
-          width: unset;
-          &::after {
-            content: '';
-            position: absolute;
-            width: 0;
-            height: 0;
-            border: .4em solid transparent;
-            border-top: .6em solid #425663;
-            top: calc(50% - .3em);
-            right: .2em;
-            pointer-events: none;
-          }
-
-          select {
-            -moz-appearance: none;
-            -webkit-appearance: none;
-            appearance: none;
-            font-size: inherit;
-            padding: .2em 1.2em .2em .2em;
-          }
-        }
-        
-        div#about, div#download {
-          padding: 20px;
-          .vzb-spreadsheet-conceptkey {
-            font-style: italic;
-            padding-bottom: 5px;
-          }
-          .vzb-spreadsheet-conceptvalue {
-            padding-bottom: 20px;
-            padding-top: 5px;
-          }
-          
-          overflow-x: hidden;
-          overflow-y: auto;
-          width: 100%;
-          height: 100%;
-          
-          div {
-            width: 100%;
-            white-space: normal;
-          }
-        }
-        
-        div#data {
-          width: 100%;
-          height: 100%;
-          overflow-x: auto;
-          overflow-y: auto;
+      div.vzb-spreadsheet-downloadas a {
+        &::before {
+          content: '⏬';
         }
       }
+      
     }
-  
-    table {
+    
+    
+
+    div#vzb-spreadsheet-table {
+      padding-top: 10px;
       width: 100%;
-      tr {
-        line-height: 2em;
-      }
-      tr:first-child {
-        font-weight: bold;
-        td {
-          border-bottom: 1px solid $vzb-color-primary;
-        }
-      }
-      .viz-spreadsheet-tablerow:nth-child(2n+3) {
-        background: $vzb-color-primary-lightest;
-      }
-      .viz-spreadsheet-datacell{
-        font-family: monospace;
-        text-align: right;
-        padding-left: 10px;
-      }
+      overflow-x: scroll;
+      overflow-y: scroll;
     }
   }
-  
+
+
+  table {
+    width: 100%;
+    tr {
+      line-height: 2em;
+    }
+    tr:first-child {
+      font-weight: bold;
+      td {
+        border-bottom: 1px solid $vzb-color-primary;
+      }
+    }
+    .viz-spreadsheet-tablerow:nth-child(2n+3) {
+      background: $vzb-color-primary-lightest;
+    }
+    .viz-spreadsheet-datacell{
+      font-family: monospace;
+      text-align: right;
+      padding-left: 10px;
+    }
+  }
+
   
   
   
   &.vzb-small {
     .vzb-spreadsheet {
       font-size: 8px;
+      div#vzb-spreadsheet-title {
+        font-size: $vzb-font-size-large;
+      }
     }
   }
   &.vzb-medium {
     .vzb-spreadsheet {
       font-size: 12px;
+      div#vzb-spreadsheet-title {
+        font-size: $vzb-font-size-larger;
+      }
     }
   }
   &.vzb-large {
     .vzb-spreadsheet {
       font-size: 16px;
+      div#vzb-spreadsheet-title {
+        font-size: $vzb-font-size-largest;
+      }
     }
   }
 }
+
+
+//$vzb-font-size-base: 16px;
+//$vzb-font-size-regular: 1em;
+//$vzb-font-size-tiny: 0.625em;
+//$vzb-font-size-small: 0.8em;
+//$vzb-font-size-medium: 1.24em;
+//$vzb-font-size-large: 1.38em;
+//$vzb-font-size-larger: 1.6em;
+//$vzb-font-size-largest: 2.1em;
