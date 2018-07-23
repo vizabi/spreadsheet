@@ -15,8 +15,13 @@
     right: 0;
     background-color: white;
     
+    flex: 1 auto;
+    display: flex;
+    flex-direction: column;
+    
     
     div#vzb-spreadsheet-title {
+      flex: none;
       width: 100%;
       padding: 10px 20px;
       cursor: pointer;
@@ -55,6 +60,7 @@
     }
 
     div#vzb-spreadsheet-about {
+      flex: none;
       padding: 10px 20px;
       .vzb-spreadsheet-conceptkey {
         font-style: italic;
@@ -76,8 +82,10 @@
     }
     
     div#vzb-spreadsheet-actions {
+      flex: none;
       padding: 10px 20px;
       text-transform: uppercase;
+      min-height: 35px;
       
       div {
         position: absolute;
@@ -111,10 +119,19 @@
     
 
     div#vzb-spreadsheet-table {
+      flex: auto;
       padding-top: 10px;
       width: 100%;
       overflow-x: scroll;
       overflow-y: scroll;
+      
+      .vzb-spreadsheet-loading {
+        font-style: italic;
+        width: 100%;
+        height: 100%;
+        text-align: center;
+        margin-top: 30px;
+      }
     }
   }
 

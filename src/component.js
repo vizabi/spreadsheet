@@ -65,33 +65,30 @@ const Spreadsheet = Component.extend("spreadsheet", {
       .findChildByName("treemenu-extension")
       .alignX(this.model.locale.isRTL() ? "right" : "left")
       .alignY("top")
+      .title("")
+      .scaletypeSelectorDisabled(true)
       .markerID("hook");
     
     this.titleEl.on("click", () => this.treemenu.updateView().toggle());
   },
 
   ready() {
+    const _this = this;
+    
     if(!this.model.marker.hook.which) {
       //open treemenu so that indicator can be selected
-      this.treemenu.alwaysVisible(true);
+      this.treemenu.showWhenReady(true);
+      this.titleEl.text("Select an indicator");
     } else {
       const concept = this.model.marker.hook.getConceptprops();
       this._drawTitle(concept);
       this._drawAboutSection(concept);
       this._drawActionsSection(concept);
       this._drawDataTable(concept);
-      this.resize();
     }
   },
     
   resize() {
-    this.tableEl.style("height", 
-      utils.px2num(this.element.style("height")) 
-      - utils.px2num(this.titleEl.style("height"))
-      - utils.px2num(this.aboutEl.style("height"))
-      - utils.px2num(this.actionsEl.style("height"))
-      + "px"
-    );
   },
   
   _drawTitle(concept) {
@@ -104,7 +101,9 @@ const Spreadsheet = Component.extend("spreadsheet", {
   //TODO: make header and column 1 presistent like so https://codepen.io/MaxArt2501/pen/qLCmE
   _drawDataTable(concept) {
     const _this = this;
-
+    this.tableEl.selectAll("table").remove();
+    this.tableEl.append("div").attr("class","vzb-spreadsheet-loading").text("data table is loading...");
+    
     const KEYS = this.KEYS;
     const dataKeys =  this.dataKeys = this.model.marker.getDataKeysPerHook();
     const labelNames = this.labelNames = this.model.marker.getLabelHookNames();
@@ -115,7 +114,9 @@ const Spreadsheet = Component.extend("spreadsheet", {
     const valueFormatter = this.model.marker.hook.getTickFormatter();
 
     this.model.marker.getFrame(null, (values, time) => {
-      _this.tableEl.selectAll("table").remove();
+      
+      _this.tableEl.select("div.vzb-spreadsheet-loading").remove();
+      _this.actionsEl.classed("vzb-hidden", false);
 
       const table = _this.tableEl.append("table")
         .attr("id", "table_" + _this._id);
@@ -137,7 +138,7 @@ const Spreadsheet = Component.extend("spreadsheet", {
               return valueFormatter(values[c].hook[utils.getKey(r, dataKeys.hook)], null, null, true) || ""
             })
         })
-      })
+      });
   },
 
 
@@ -178,7 +179,8 @@ const Spreadsheet = Component.extend("spreadsheet", {
     
     this.aboutEl.selectAll("div").remove();
     
-    this.aboutEl.selectAll("div.concept").data(["description", "sourceLink", "scales"])
+    this.aboutEl.selectAll("div.concept")
+      .data(["description", "sourceName", "sourceLink"].filter(f => concept[f]))
       .enter().append("div")
       .html(d=>{
         const conceptvalue = (concept[d] || "").indexOf("http")==0 ? ('<a href="' + concept[d] + '">' + concept[d] + '</a>') : concept[d];
@@ -192,6 +194,8 @@ const Spreadsheet = Component.extend("spreadsheet", {
   
   _drawActionsSection(concept){
     this.actionsEl.selectAll("div").remove();
+    
+    this.actionsEl.classed("vzb-hidden", true);
     
     this.actionsEl.append("div")
       .attr("class", "vzb-spreadsheet-viewas")
