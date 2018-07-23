@@ -7,6 +7,12 @@ const {
   iconset,
 } = Vizabi;
 
+const charts = {
+  BubbleChart: {toolsPageChartType: "bubbles", icon: "🎈", hook: "axis_y"},
+  BubbleMap: {toolsPageChartType: "map", icon: "🌍", hook: "color"},
+  LineChart: {toolsPageChartType: "linechart", icon: "〽️", hook: "axis_y"}
+};
+
 const Spreadsheet = Component.extend("spreadsheet", {
 
   init(config, context) {
@@ -41,47 +47,64 @@ const Spreadsheet = Component.extend("spreadsheet", {
 
     this._super(config, context);
 
-    this.root.on("ready", () => this.toolReady());
+    //this.root.on("ready", () => this.toolReady());
   },
 
   readyOnce() {
     d3.select(this.parent.element).classed("vzb-timeslider-off", true);
     this.element = d3.select(this.element);
-    this.tableEl = this.element.select("#vzb-spreadsheet-list").append("table");
+    this.titleEl = this.element.select("#vzb-spreadsheet-title");
+    this.aboutEl = this.element.select("#vzb-spreadsheet-about");
+    this.actionsEl = this.element.select("#vzb-spreadsheet-actions");
+    this.tableEl = this.element.select("#vzb-spreadsheet-table");
 
     this.KEYS = utils.unique(this.model.marker._getAllDimensions({ exceptType: "time" }));
     this.KEY = this.KEYS.join(",");
 
-    this.conceptsDictionary = this.model.data.getConceptprops();
-    this._redraw();
-
-    const tabs = ["about", "data", "download"];
-
-    this.explorerEl = this.element.select("#vzb-spreadsheet-explorer");
-    this.explorerEl.select(".vzb-close-x")
-      .on("click", ()=>{this.explorerEl.style("display", "none")})
-
-    this.contentPanesEl = this.element.select("#vzb-spreadsheet-content").selectAll("div").data(tabs)
-      .enter().append("div")
-      .attr("id", d=>d);
-
-
-    this.tabsEl = this.element.select("#vzb-spreadsheet-tabs").selectAll("div.vzb-spreadsheet-tab").data(tabs)
-      .enter().append("div")
-      .attr("id", d=>d)
-      .classed("vzb-spreadsheet-tab", true)
-      .text(d=>d)
-      .on("click", (d) => this._showTab(d));
-
-    if(this.model.marker.hook.which) this._showDetails(this.model.marker.hook.which);
+    this.treemenu = this.parent
+      .findChildByName("treemenu-extension")
+      .alignX(this.model.locale.isRTL() ? "right" : "left")
+      .alignY("top")
+      .title("")
+      .scaletypeSelectorDisabled(true)
+      .markerID("hook");
+    
+    this.titleEl.on("click", () => this.treemenu.updateView().toggle());
   },
 
-  toolReady() {
+  ready() {
     const _this = this;
-    if (!this.model.marker.hook.which) return;
+    
+    if(!this.model.marker.hook.which) {
+      //open treemenu so that indicator can be selected
+      this.treemenu.showWhenReady(true);
+      this.titleEl.text("Select an indicator");
+    } else {
+      const concept = this.model.marker.hook.getConceptprops();
+      this._drawTitle(concept);
+      this._drawAboutSection(concept);
+      this._drawActionsSection(concept);
+      this._drawDataTable(concept);
+    }
+  },
+    
+  resize() {
+  },
+  
+  _drawTitle(concept) {
+    this.titleEl
+      .text(concept.name);
+  },
 
-    const KEYS = this.KEYS = utils.unique(this.model.marker._getAllDimensions({ exceptType: "time" }));
-    this.KEY = this.KEYS.join(",");
+  
+  
+  //TODO: make header and column 1 presistent like so https://codepen.io/MaxArt2501/pen/qLCmE
+  _drawDataTable(concept) {
+    const _this = this;
+    this.tableEl.selectAll("table").remove();
+    this.tableEl.append("div").attr("class","vzb-spreadsheet-loading").text("data table is loading...");
+    
+    const KEYS = this.KEYS;
     const dataKeys =  this.dataKeys = this.model.marker.getDataKeysPerHook();
     const labelNames = this.labelNames = this.model.marker.getLabelHookNames();
 
@@ -91,10 +114,11 @@ const Spreadsheet = Component.extend("spreadsheet", {
     const valueFormatter = this.model.marker.hook.getTickFormatter();
 
     this.model.marker.getFrame(null, (values, time) => {
-      const viewData = _this.element.select("#vzb-spreadsheet-content").select("#data");
-      viewData.selectAll("table").remove();
+      
+      _this.tableEl.select("div.vzb-spreadsheet-loading").remove();
+      _this.actionsEl.classed("vzb-hidden", false);
 
-      const table = viewData.append("table")
+      const table = _this.tableEl.append("table")
         .attr("id", "table_" + _this._id);
       steps = steps.filter((f) => {return _this.model.time.startSelected <= f && f <= _this.model.time.endSelected})
 
@@ -113,74 +137,89 @@ const Spreadsheet = Component.extend("spreadsheet", {
               if (j<KEYS.length) return values[_this.model.time.value][labelNames[c]][utils.getKey(r, dataKeys[labelNames[c]])];
               return valueFormatter(values[c].hook[utils.getKey(r, dataKeys.hook)], null, null, true) || ""
             })
-
-
         })
-
-      })
+      });
   },
 
-  resize() {
-  },
 
-  _showTab(tab = "about"){    
-    this.explorerEl.style("display", "block");
-    this.contentPanesEl.style("display", (p) => p == tab ? null : "none"); 
 
-    this.tabsEl.classed("vzb-active", (p) => p == tab); 
-  },
-
-  _showDetails(which) {
+  _drawAboutSection(concept) {
     const _this = this;
-    const concept = this.conceptsDictionary[which];
 
-    const dataAvailable = this.model.data.dataAvailability.datapoints
-      .reduce((result, item) => {
-        if (item.value !== which) return result;
-        result.push({
-          key: [...item.key].join(","),
-          value: [...item.key]
-        })
-        return result;
-      }, []);
+//    const dataAvailable = this.model.data.dataAvailability.datapoints
+//      .reduce((result, item) => {
+//        if (item.value !== which) return result;
+//        result.push({
+//          key: [...item.key].join(","),
+//          value: [...item.key]
+//        })
+//        return result;
+//      }, []);
+//
+//    let viewAbout = this.element.select("#vzb-spreadsheet-content").select("#about");
+//
+//    const selectorEl = viewAbout.append("div").style("display", dataAvailable.length > 1 ? "block" : "none")
+//      .call(selection => selection.append("div").classed("vzb-spreadsheet-conceptkey", true).text("dimensions"))
+//      .append("div").classed("vzb-spreadsheet-conceptvalue", true)
+//      .append("div").classed("vzb-spreadsheet-select", true)
+//      .append("select").on("change", function(evt) {
+//        const d = d3.select(this.options[this.options.selectedIndex]).datum();
+//        _this.model.marker.setSpace(d.value);
+//        utils.defer(() => _this.model.marker.startLoading());
+//      })
+//    selectorEl.selectAll("option").data(dataAvailable, d => d.key).enter().append("option").text(d => d.key);
+//
+//    const allKeys = utils.unique(this.model.marker._getAllDimensions()).join(",");
+//    const selectedIndex = dataAvailable.map(d => d.key).indexOf(allKeys);
+//    selectorEl.property("selectedIndex", selectedIndex === -1 ? 0: selectedIndex);
+//    if (selectedIndex === -1) selectorEl.dispatch("change");
+//
+//    this.model.marker.hook.setWhich({concept: which, dataSource: "data"});
 
-    let viewAbout = this.element.select("#vzb-spreadsheet-content").select("#about");
-    viewAbout.selectAll("div").remove();
-
-    const selectorEl = viewAbout.append("div").style("display", dataAvailable.length > 1 ? "block" : "none")
-      .call(selection => selection.append("div").classed("vzb-spreadsheet-conceptkey", true).text("dimensions"))
-      .append("div").classed("vzb-spreadsheet-conceptvalue", true)
-      .append("div").classed("vzb-spreadsheet-select", true)
-      .append("select").on("change", function(evt) {
-        const d = d3.select(this.options[this.options.selectedIndex]).datum();
-        _this.model.marker.setSpace(d.value);
-        utils.defer(() => _this.model.marker.startLoading());
-      })
-    selectorEl.selectAll("option").data(dataAvailable, d => d.key).enter().append("option").text(d => d.key);
-
-    const allKeys = utils.unique(this.model.marker._getAllDimensions()).join(",");
-    const selectedIndex = dataAvailable.map(d => d.key).indexOf(allKeys);
-    selectorEl.property("selectedIndex", selectedIndex === -1 ? 0: selectedIndex);
-    if (selectedIndex === -1) selectorEl.dispatch("change");
-
-    this.model.marker.hook.setWhich({concept: which, dataSource: "data"});
-
-    viewAbout.selectAll("div.concept").data(["name", "description", "sourceLink", "scales"])
+    
+    this.aboutEl.selectAll("div").remove();
+    
+    this.aboutEl.selectAll("div.concept")
+      .data(["description", "sourceName", "sourceLink"].filter(f => concept[f]))
       .enter().append("div")
       .html(d=>{
         const conceptvalue = (concept[d] || "").indexOf("http")==0 ? ('<a href="' + concept[d] + '">' + concept[d] + '</a>') : concept[d];
 
-        return '<div class="vzb-spreadsheet-conceptkey">' + d + '</div>' +
-        '<div class="vzb-spreadsheet-conceptvalue">' + conceptvalue + '</div>'
+        return '<span class="vzb-spreadsheet-conceptkey">' + d + ':</span>' +
+        '<span class="vzb-spreadsheet-conceptvalue">' + conceptvalue + '</span>'
       })
 
-    let viewDl = this.element.select("#vzb-spreadsheet-content").select("#download");
 
-    viewDl.selectAll("div").remove();
-    viewDl.selectAll("div").data(["csv", "xlsx"])
-      .enter().append("div").append("a").text(type=>type).on("click", type=>this._download(type, which));
-
-    this._showTab();
+  },
+  
+  _drawActionsSection(concept){
+    this.actionsEl.selectAll("div").remove();
+    
+    this.actionsEl.classed("vzb-hidden", true);
+    
+    this.actionsEl.append("div")
+      .attr("class", "vzb-spreadsheet-viewas")
+      .text("View as:")
+      .selectAll("a").data(Object.keys(charts))
+      .enter().append("a")
+      .text(chart=>charts[chart].icon)
+      .attr("title", chart=>chart)
+      .attr("target", "_blank")
+      .attr("href", chart => this._viewAs(charts[chart], concept)); 
+    
+    this.actionsEl.append("div")
+      .attr("class", "vzb-spreadsheet-downloadas")
+      .text("Download as:")
+      .selectAll("a").data(["csv", "xlsx"])
+      .enter().append("a")
+      .text(type=>type)
+      .on("click", type => this._download(type, concept.concept));  
+  },
+  
+  _viewAs(chart, concept){
+    const scaletype = (concept.scales || [])[0] || "linear";
+    return `https://www.gapminder.org/tools/#$state$marker$${chart.hook}$which=${concept.concept}&domainMin:null&domainMax:null&zoomedMin:null&zoomedMax:null&scaleType=${scaletype}&spaceRef:null;;;&chart-type=${chart.toolsPageChartType}`
+    
   },
 
   _download(type, fileName){
@@ -208,38 +247,6 @@ const Spreadsheet = Component.extend("spreadsheet", {
     }
 
     export_table_to_excel('table_' + this._id, type, fileName);    
-  },
-
-  _redraw() {
-    const _this = this;
-
-    const concepts = d3.keys(this.conceptsDictionary)
-      .filter((f) => (this.conceptsDictionary[f].tags || "").indexOf("_none")==-1  && this.conceptsDictionary[f].name && this.conceptsDictionary[f].concept_type === "measure")
-      .sort((a,b) => {
-        if (this.conceptsDictionary[a].tags > this.conceptsDictionary[b].tags) return 1;
-        if (this.conceptsDictionary[a].tags < this.conceptsDictionary[b].tags) return -1;
-        return 0;
-      })
-
-    let header = this.tableEl.append("tr");
-    header.append("th").text("name");
-    header.append("th").text("tags");
-
-    let rowsEl = this.tableEl.selectAll("tr.viz-spreadsheet-tablerow").data(concepts);
-
-    rowsEl.exit().remove();
-
-    rowsEl.enter().append("tr")
-      .classed("viz-spreadsheet-tablerow", true)
-      .on("click", r => this._showDetails(r))
-      .each(function(r, i){
-        const view = d3.select(this);
-        view.append("td").text((d) => _this.conceptsDictionary[d].name);
-        view.append("td").text((d) => _this.conceptsDictionary[d].tags);
-      })
-      .merge(rowsEl);
-
-
   }
 
 
