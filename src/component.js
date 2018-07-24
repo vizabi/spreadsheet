@@ -9,7 +9,7 @@ const {
 
 const charts = {
   BubbleChart: {toolsPageChartType: "bubbles", icon: "🎈", hook: "axis_y"},
-  BubbleMap: {toolsPageChartType: "map", icon: "🌍", hook: "color"},
+//  BubbleMap: {toolsPageChartType: "map", icon: "🌍", hook: "color"},
   LineChart: {toolsPageChartType: "linechart", icon: "〽️", hook: "axis_y"}
 };
 
@@ -120,7 +120,6 @@ const Spreadsheet = Component.extend("spreadsheet", {
 
       const table = _this.tableEl.append("table")
         .attr("id", "table_" + _this._id);
-      steps = steps.filter((f) => {return _this.model.time.startSelected <= f && f <= _this.model.time.endSelected})
 
       keys.sort(function(b, a) { return d3.descending(values[_this.model.time.value].label[utils.getKey(a, dataKeys.label)], values[_this.model.time.value].label[utils.getKey(b, dataKeys.label)]) });
 
