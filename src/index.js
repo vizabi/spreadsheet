@@ -49,6 +49,7 @@ export default Vizabi.Tool.extend("Spreadsheet", {
         hook: {
           which: null,
           use: "indicator",
+          disable_gapfill: true,
           _important: true,
           allow: {
             scales: ["linear", "log", "genericLog"]

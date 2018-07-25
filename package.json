@@ -1,6 +1,6 @@
 {
   "name": "vizabi-spreadsheet",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Spreadsheet tool for Vizabi",
   "main": "build/spreadsheet.js",
   "keywords": [],
