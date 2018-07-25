@@ -182,10 +182,11 @@ const Spreadsheet = Component.extend("spreadsheet", {
       .data(["description", "sourceName", "sourceLink"].filter(f => concept[f]))
       .enter().append("div")
       .html(d=>{
-        const conceptvalue = (concept[d] || "").indexOf("http")==0 ? ('<a href="' + concept[d] + '">' + concept[d] + '</a>') : concept[d];
+        let value = d == "sourceLink" ? utils.normaliseLink(concept[d]) : concept[d];
+        value = (value || "").indexOf("http")==0 ? ('<a href="' + value + '">' + value + '</a>') : value;
 
         return '<span class="vzb-spreadsheet-conceptkey">' + d + ':</span>' +
-        '<span class="vzb-spreadsheet-conceptvalue">' + conceptvalue + '</span>'
+        '<span class="vzb-spreadsheet-conceptvalue">' + value + '</span>'
       })
 
 
