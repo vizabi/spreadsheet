@@ -86,6 +86,8 @@
       padding: 10px 5px;
       text-transform: uppercase;
       min-height: 35px;
+      display: flex;
+      align-items: center;
       
       div {
         position: absolute;
@@ -122,8 +124,37 @@
       flex: auto;
       padding: 10px 5px 0px 5px;
       width: 100%;
-      overflow-x: scroll;
-      overflow-y: scroll;
+      display: flex;
+      flex-direction: row;
+      overflow: scroll;
+      &.vzb-spreadsheet-table-fix-headers {
+        overflow: hidden;
+        padding-right: 0;
+
+        .viz-spreadsheet-keytable-wrapper {
+          max-height: 100%; 
+          .viz-spreadsheet-keytable {
+            overflow: hidden;
+          }
+        }
+        .viz-spreadsheet-table-wrapper {
+          overflow: hidden;
+          .viz-spreadsheet-table-header {
+            overflow: hidden;
+            flex: none;
+            max-height: calc(2em + 5px);
+            padding-right: 5px;
+          }
+          .viz-spreadsheet-table {
+            overflow: scroll;
+            padding-right: 5px;
+            .viz-spreadsheet-headrow {
+              display: none;
+            }
+          }
+                     
+        }
+      }
       
       .vzb-spreadsheet-loading {
         font-style: italic;
@@ -137,7 +168,6 @@
 
 
   table {
-    width: 100%;
     tr {
       line-height: 2em;
     }
@@ -150,16 +180,51 @@
     .viz-spreadsheet-tablerow:nth-child(2n+3) {
       background: $vzb-color-primary-lightest;
     }
-    .viz-spreadsheet-datacell{
-      font-family: monospace;
-      text-align: right;
-      padding-left: 10px;
+
+    .viz-spreadsheet-headrow {
+      td::before {
+        content: attr(data-caption);
+      }
     }
+
+    &.viz-spreadsheet-table,
+    &.viz-spreadsheet-table-header {
+      display: block;
+      td {
+        font-family: monospace;
+        text-align: right;
+        padding-left: 10px;
+      }
+    }
+
   }
 
+  .viz-spreadsheet-keytable {
+    display: block;
+    .viz-spreadsheet-headrow {
+      td::before {
+        position: absolute;
+        margin-top: calc(-2em + 1px);
+        width: calc(100% - 5px);
+        border-bottom: 1px solid $vzb-color-primary;;
+        background-color: white;
+      }
+    }
+  }
+  
+  .viz-spreadsheet-keytable-wrapper {
+    position: relative;
+    margin-top: 2em;
+    flex: none;
+  }
+
+  .viz-spreadsheet-table-wrapper {
+    display: flex;
+    flex-direction: column;
+  }
   
   
-  
+ 
   &.vzb-small {
     .vzb-spreadsheet {
       font-size: 8px;

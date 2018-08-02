@@ -61,6 +61,8 @@ const Spreadsheet = Component.extend("spreadsheet", {
     this.KEYS = utils.unique(this.model.marker._getAllDimensions({ exceptType: "time" }));
     this.KEY = this.KEYS.join(",");
 
+    this.fixHeaders = (this.model.ui.chart || {}).fixHeaders;
+
     this.treemenu = this.parent
       .findChildByName("treemenu-extension")
       .alignX(this.model.locale.isRTL() ? "right" : "left")
@@ -101,7 +103,9 @@ const Spreadsheet = Component.extend("spreadsheet", {
   //TODO: make header and column 1 presistent like so https://codepen.io/MaxArt2501/pen/qLCmE
   _drawDataTable(concept) {
     const _this = this;
-    this.tableEl.selectAll("table").remove();
+    this.tableEl.select(".viz-spreadsheet-keytable-wrapper").remove();
+    this.tableEl.select(".viz-spreadsheet-table-wrapper").remove();
+    this.tableEl.classed("vzb-spreadsheet-table-fix-headers", this.fixHeaders);
     this.tableEl.append("div").attr("class","vzb-spreadsheet-loading").text("data table is loading...");
     
     const KEYS = this.KEYS;
@@ -118,26 +122,64 @@ const Spreadsheet = Component.extend("spreadsheet", {
       _this.tableEl.select("div.vzb-spreadsheet-loading").remove();
       _this.actionsEl.classed("vzb-hidden", false);
 
-      const table = _this.tableEl.append("table")
-        .attr("id", "table_" + _this._id);
-
       keys.sort(function(b, a) { return d3.descending(values[_this.model.time.value].label[utils.getKey(a, dataKeys.label)], values[_this.model.time.value].label[utils.getKey(b, dataKeys.label)]) });
 
-      table.selectAll("tr").data([""].concat(keys))
+      const keysTable = _this.tableEl
+        .append("div")
+          .classed("viz-spreadsheet-keytable-wrapper", true)
+        .append("table")
+          .attr("id", "table_keys_" + _this._id)
+          .classed("viz-spreadsheet-keytable", true)
+      
+      keysTable.selectAll("tr").data([""].concat(keys))
         .enter().append("tr")
-        .classed("viz-spreadsheet-tablerow", (d,i) => i!==0)
+        .attr("class", (d, i) => i ? "viz-spreadsheet-tablerow" : "viz-spreadsheet-headrow")
         .each(function(r, i){
-          const row = d3.select(this).selectAll("td").data(KEYS.concat(steps))
+          const row = d3.select(this).selectAll("td").data(KEYS)
             .enter().append("td")
-            .classed("viz-spreadsheet-datacell", (c,j) => j>=KEYS.length)
+            .attr("data-caption", c => i == 0 ? c : null)
             .text((c, j) => {
-              if (i==0 && j<KEYS.length) return c;
-              if (i==0) return timeFormatter(c);
-              if (j<KEYS.length) return values[_this.model.time.value][labelNames[c]][utils.getKey(r, dataKeys[labelNames[c]])];
-              return valueFormatter(values[c].hook[utils.getKey(r, dataKeys.hook)], null, null, true) || ""
+              if (i==0) return "";
+              return values[_this.model.time.value][labelNames[c]][utils.getKey(r, dataKeys[labelNames[c]])];
             })
         })
-      });
+
+      const tableHeader = _this.tableEl
+      .append("div")
+      .classed("viz-spreadsheet-table-wrapper", true)
+      .append("table")
+        .attr("id", "table_header_" + _this._id)
+        .classed("viz-spreadsheet-table-header", true)
+
+      tableHeader.selectAll("tr").data([""].concat(keys))
+        .enter().append("tr")
+        .attr("class", (d, i) => i ? "viz-spreadsheet-tablerow" : "viz-spreadsheet-headrow")
+        .each(function(r, i){
+          const row = d3.select(this).selectAll("td").data(steps)
+            .enter().append("td")
+            .attr("data-caption", c => i == 0 ? timeFormatter(c) : null)
+            .text((c, j) => {
+              if (i==0) return "";
+              return valueFormatter(values[c].hook[utils.getKey(r, dataKeys.hook)], null, null, true) || ""
+            })
+        });
+
+      if (this.fixHeaders) {
+        const table = tableHeader.clone(true)
+          .attr("id", "table_" + _this._id)
+          .attr("class", "viz-spreadsheet-table");
+
+        const scrollBarWidth = table.node().offsetWidth - table.node().clientWidth;
+        tableHeader.style("margin-right", scrollBarWidth + "px");
+        keysTable.style("height", `calc(100% - ${scrollBarWidth}px)`);
+
+        table.on("scroll", function () {
+          keysTable.node().scrollTop = this.scrollTop;
+          tableHeader.node().scrollLeft = this.scrollLeft;
+        });
+      }
+    });
+
   },
 
 
