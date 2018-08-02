@@ -67,7 +67,11 @@ export default Vizabi.Tool.extend("Spreadsheet", {
     locale: {
       id: "en"
     },
-    ui: {}
+    ui: {
+      chart: {
+        fixHeaders: true
+      }
+    }
   }
 
 });
