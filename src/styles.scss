@@ -142,14 +142,20 @@
           .viz-spreadsheet-table-header {
             overflow: hidden;
             flex: none;
-            max-height: calc(2em + 5px);
+            max-height: calc(2em + 3px);
             padding-right: 5px;
           }
           .viz-spreadsheet-table {
             overflow: scroll;
             padding-right: 5px;
             .viz-spreadsheet-headrow {
-              display: none;
+              line-height: 0;
+              opacity: 0;
+              td {
+                padding-top: 0;
+                padding-bottom: 0;
+                border-bottom: none;
+              }
             }
           }
                      
@@ -168,6 +174,7 @@
 
 
   table {
+    border-spacing: 2px 0;
     tr {
       line-height: 2em;
     }
