@@ -124,50 +124,53 @@ const Spreadsheet = Component.extend("spreadsheet", {
 
       keys.sort(function(b, a) { return d3.descending(values[_this.model.time.value].label[utils.getKey(a, dataKeys.label)], values[_this.model.time.value].label[utils.getKey(b, dataKeys.label)]) });
 
-      const keysTable = _this.tableEl
-        .append("div")
-          .classed("viz-spreadsheet-keytable-wrapper", true)
-        .append("table")
-          .attr("id", "table_keys_" + _this._id)
-          .classed("viz-spreadsheet-keytable", true)
-      
-      keysTable.selectAll("tr").data([""].concat(keys))
-        .enter().append("tr")
-        .attr("class", (d, i) => i ? "viz-spreadsheet-tablerow" : "viz-spreadsheet-headrow")
-        .each(function(r, i){
-          const row = d3.select(this).selectAll("td").data(KEYS)
-            .enter().append("td")
-            .attr("data-caption", c => i == 0 ? c : null)
-            .text((c, j) => {
-              if (i==0) return "";
-              return values[_this.model.time.value][labelNames[c]][utils.getKey(r, dataKeys[labelNames[c]])];
-            })
-        })
-
-      const tableHeader = _this.tableEl
+      const table = _this.tableEl
       .append("div")
-      .classed("viz-spreadsheet-table-wrapper", true)
+        .classed("viz-spreadsheet-table-wrapper", true)
       .append("table")
-        .attr("id", "table_header_" + _this._id)
-        .classed("viz-spreadsheet-table-header", true)
+        .attr("id", "table_" + _this._id)
+        .classed("viz-spreadsheet-table", true)
 
-      tableHeader.selectAll("tr").data([""].concat(keys))
+      table.selectAll("tr").data([""].concat(keys))
         .enter().append("tr")
         .attr("class", (d, i) => i ? "viz-spreadsheet-tablerow" : "viz-spreadsheet-headrow")
         .each(function(r, i){
-          const row = d3.select(this).selectAll("td").data(steps)
+          const row = d3.select(this).selectAll("td").data(KEYS.concat(steps))
             .enter().append("td")
-            .attr("data-caption", c => i == 0 ? timeFormatter(c) : null)
+            .classed("viz-spreadsheet-keycell", (c,j) => j<KEYS.length)
             .text((c, j) => {
-              if (i==0) return "";
-              return valueFormatter(values[c].hook[utils.getKey(r, dataKeys.hook)], null, null, true) || ""
+              if (i==0 && j<KEYS.length) return c;
+              if (i==0) return timeFormatter(c);
+              if (j<KEYS.length) return values[_this.model.time.value][labelNames[c]][utils.getKey(r, dataKeys[labelNames[c]])];
+              return valueFormatter(values[c].hook[utils.getKey(r, dataKeys.hook)], null, null, true) || "";
             })
         });
 
       if (this.fixHeaders) {
-        const table = tableHeader.clone(true)
-          .attr("id", "table_" + _this._id)
-          .attr("class", "viz-spreadsheet-table");
+        const keysTable = _this.tableEl
+          .append("div")
+            .classed("viz-spreadsheet-keytable-wrapper", true)
+          .lower()
+          .append("table")
+            .attr("id", "table_keys_" + _this._id)
+            .classed("viz-spreadsheet-keytable", true)
+
+        keysTable.selectAll("tr").data([""].concat(keys))
+          .enter().append("tr")
+          .attr("class", (d, i) => i ? "viz-spreadsheet-tablerow" : "viz-spreadsheet-headrow")
+          .each(function(r, i){
+            const row = d3.select(this).selectAll("td").data(KEYS)
+              .enter().append("td")
+              .attr("data-caption", c => i == 0 ? c : null)
+              .text((c, j) => {
+                if (i==0) return "";
+                return values[_this.model.time.value][labelNames[c]][utils.getKey(r, dataKeys[labelNames[c]])];
+              })
+          });
+
+        const tableHeader = table.clone(true).lower()
+          .attr("id", "table_header_" + _this._id)
+          .attr("class", "viz-spreadsheet-table-header");
 
         const scrollBarWidth = table.node().offsetWidth - table.node().clientWidth;
         tableHeader.style("margin-right", scrollBarWidth + "px");

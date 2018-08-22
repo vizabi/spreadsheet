@@ -158,6 +158,9 @@
               }
             }
           }
+          .viz-spreadsheet-keycell {
+            display: none;
+          }
                      
         }
       }
@@ -188,15 +191,15 @@
       background: $vzb-color-primary-lightest;
     }
 
-    .viz-spreadsheet-headrow {
-      td::before {
-        content: attr(data-caption);
-      }
-    }
-
     &.viz-spreadsheet-table,
     &.viz-spreadsheet-table-header {
       display: block;
+
+      .viz-spreadsheet-keycell {
+        font-family: inherit;
+        text-align: inherit;
+        padding-left: inherit;
+      }
       td {
         font-family: monospace;
         text-align: right;
@@ -210,6 +213,7 @@
     display: block;
     .viz-spreadsheet-headrow {
       td::before {
+        content: attr(data-caption);
         position: absolute;
         margin-top: calc(-2em + 1px);
         width: calc(100% - 5px);
