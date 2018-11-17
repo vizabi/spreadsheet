@@ -263,7 +263,8 @@ const Spreadsheet = Component.extend("spreadsheet", {
   
   _viewAs(chart, concept){
     const scaletype = (concept.scales || [])[0] || "linear";
-    return `https://www.gapminder.org/tools/#$state$marker$${chart.hook}$which=${concept.concept}&domainMin:null&domainMax:null&zoomedMin:null&zoomedMax:null&scaleType=${scaletype}&spaceRef:null;;;&chart-type=${chart.toolsPageChartType}`
+    return window.location.origin + window.location.pathname 
+      + `#$state$marker$${chart.hook}$which=${concept.concept}&domainMin:null&domainMax:null&zoomedMin:null&zoomedMax:null&scaleType=${scaletype}&spaceRef:null;;;&chart-type=${chart.toolsPageChartType}`
     
   },
 
