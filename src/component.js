@@ -98,9 +98,6 @@ const Spreadsheet = Component.extend("spreadsheet", {
       .text(concept.name);
   },
 
-  
-  
-  //TODO: make header and column 1 presistent like so https://codepen.io/MaxArt2501/pen/qLCmE
   _drawDataTable(concept) {
     const _this = this;
     this.tableEl.select(".viz-spreadsheet-keytable-wrapper").remove();
@@ -112,17 +109,24 @@ const Spreadsheet = Component.extend("spreadsheet", {
     const dataKeys =  this.dataKeys = this.model.marker.getDataKeysPerHook();
     const labelNames = this.labelNames = this.model.marker.getLabelHookNames();
 
-    const keys = this.model.marker.getKeys();
-    let steps = this.model.time.getAllSteps();
+    const steps = this.model.time.getAllSteps();
     const timeFormatter = this.model.time.getFormatter();
     const valueFormatter = this.model.marker.hook.getTickFormatter();
 
     this.model.marker.getFrame(null, (values, time) => {
       
+      const keys = this.model.marker.getKeys()
+        .map(key => { 
+          key[Symbol.for('key')] = utils.getKey(key, dataKeys.hook);
+          return key;
+        })
+        .filter(key => steps.some(step => values[step].hook[key[Symbol.for('key')]] || values[step].hook[key[Symbol.for('key')]] === 0))
+        .sort(function(b, a) {
+          return d3.descending(values[_this.model.time.value].label[utils.getKey(a, dataKeys.label)], values[_this.model.time.value].label[utils.getKey(b, dataKeys.label)]);
+        });
+
       _this.tableEl.select("div.vzb-spreadsheet-loading").remove();
       _this.actionsEl.classed("vzb-hidden", false);
-
-      keys.sort(function(b, a) { return d3.descending(values[_this.model.time.value].label[utils.getKey(a, dataKeys.label)], values[_this.model.time.value].label[utils.getKey(b, dataKeys.label)]) });
 
       const table = _this.tableEl
       .append("div")
@@ -141,8 +145,8 @@ const Spreadsheet = Component.extend("spreadsheet", {
             .text((c, j) => {
               if (i==0 && j<KEYS.length) return c;
               if (i==0) return timeFormatter(c);
-              if (j<KEYS.length) return values[_this.model.time.value][labelNames[c]][utils.getKey(r, dataKeys[labelNames[c]])];
-              return valueFormatter(values[c].hook[utils.getKey(r, dataKeys.hook)], null, null, true) || "";
+              if (j<KEYS.length) return values[_this.model.time.value][labelNames[c]][r[c]];
+              return valueFormatter(values[c].hook[r[Symbol.for('key')]], null, null, true) || "";
             })
         });
 
