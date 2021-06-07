@@ -1,10 +1,15 @@
 {
   "name": "vizabi-spreadsheet",
-  "version": "2.2.0",
+  "version": "3.0.1",
   "description": "Spreadsheet tool for Vizabi",
+  "scripts": {
+    "prepublishOnly": "npm run build",
+    "link": "npm link ../vizabi-shared-components",
+    "start": "rollup -c",
+    "build": "cross-env NODE_ENV=production rollup -c",
+    "deploy": "tool-deploy"
+  },
   "main": "build/spreadsheet.js",
-  "keywords": [],
-  "author": "",
   "files": [
     "build"
   ],
@@ -12,21 +17,34 @@
     "type": "git",
     "url": "git+https://github.com/vizabi/vizabi-spreadsheet.git"
   },
-  "license": "ISC",
+  "author": {
+    "name": "Gapminder Foundation",
+    "url": "https://www.gapminder.org",
+    "email": "info@gapminder.org"
+  },
+  "contributors": [
+    {
+      "name": "Angie",
+      "url": "https://github.com/angieskazka"
+    },
+    {
+      "name": "Jasper",
+      "url": "https://github.com/jheeffer"
+    },
+    {
+      "name": "Dima",
+      "url": "https://github.com/dab2000"
+    }
+  ],
+  "license": "CC-BY-4.0",
   "bugs": {
     "url": "https://github.com/vizabi/vizabi-spreadsheet/issues"
   },
   "homepage": "https://github.com/vizabi/vizabi-spreadsheet#readme",
-  "scripts": {
-    "start": "webpack-dev-server",
-    "link": "npm link ../vizabi",
-    "build": "cross-env NODE_ENV=production webpack --progress",
-    "deploy": "tool-deploy"
-  },
   "devDependencies": {
     "cross-env": "^5.0.1",
-    "vizabi": "latest",
-    "vizabi-tool-bundler": "github:vizabi/vizabi-tool-bundler"
+    "vizabi-shared-components": "../vizabi-shared-components",
+    "vizabi-tool-bundler": "1.1.1"
   },
   "dependencies": {
     "xlsx": "0.11.4",
