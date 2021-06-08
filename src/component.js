@@ -1,4 +1,4 @@
-import XLSX from "xlsx";
+import XLSX from "../node_modules/xlsx/dist/xlsx.mini.min.js";
 import { saveAs } from "file-saver";
 
 import {
