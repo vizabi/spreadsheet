@@ -15,6 +15,12 @@ export default class Spreadsheet extends BaseComponent {
   constructor(config){
 
     Vizabi.utils.applyDefaults(config.model.markers.spreadsheet.config, Spreadsheet.DEFAULT_CORE);    
+    //clear constant if concept is set
+    if (config.model.markers.spreadsheet.config.encoding.hook.data.concept) {
+      config.model.markers.spreadsheet.config.encoding.hook.data.constant = undefined;
+    }
+
+
     const marker = config.model.markers.spreadsheet;
 
     config.name = "spreadsheet";

@@ -42,11 +42,8 @@ class _VizabiSpreadsheet extends BaseComponent {
 
     this.root.element.classed("vzb-timeslider-off", true);
 
-    //this.KEYS = utils.unique(this.model.marker._getAllDimensions({ exceptType: "time" }));
-    //this.KEY = this.KEYS.join(",");
-
-
     this.treemenu = () => this.root.findChild({type: "TreeMenu"});
+    this.DOM.title.on("click", () => this.treemenu().updateView().toggle())
   }
 
   draw() {
@@ -54,17 +51,18 @@ class _VizabiSpreadsheet extends BaseComponent {
     this.fixHeaders = this.ui.fixHeaders;
 
     //if (this.updateLayoutProfile()) return; //return if exists with error
+    this.DOM.title.classed("vzb-disabled", this.treemenu().state.ownReadiness !== Utils.STATUS.READY);
 
-    this.treemenu()
-      .alignX(this.services.locale.isRTL() ? "right" : "left")
-      .alignY("top")
-      .title("")
-      .scaletypeSelectorDisabled(true)
-      .encoding("hook");
-
-    if (!this.model.encoding.hook.data.concept) {
-      this.treemenu().showWhenReady(true);
-      if (this.treemenu().state.ownReadiness !== Utils.STATUS.READY) return;
+    if (this.treemenu().state.ownReadiness == Utils.STATUS.READY) {
+      this.treemenu()
+        .alignX(this.services.locale.isRTL() ? "right" : "left")
+        .alignY("top")
+        .title("")
+        .scaletypeSelectorDisabled(true)
+        .encoding("hook");
+      if (!this.model.encoding.hook.data.concept) {
+        this.treemenu().showWhenReady(true);
+      }
     }
 
     this.addReaction(this._drawTitle);
@@ -76,10 +74,7 @@ class _VizabiSpreadsheet extends BaseComponent {
   _drawTitle() {
     const concept = this.model.encoding.hook.data.conceptProps;
   
-    this.DOM.title
-      .classed("vzb-disabled", this.treemenu().state.ownReadiness !== Utils.STATUS.READY)
-      .on("click", () => this.treemenu().updateView().toggle())
-      .text(concept?.name);
+    this.DOM.title.text(concept ? concept.name : "Select an indicator");
   }
 
   get dataMap() {
@@ -97,25 +92,11 @@ class _VizabiSpreadsheet extends BaseComponent {
     this.DOM.table.classed("vzb-spreadsheet-table-fix-headers", this.fixHeaders);
     this.DOM.table.append("div").attr("class","vzb-spreadsheet-loading").text("data table is loading...");
     
-    //const KEYS = this.KEYS;
-    //const dataKeys =  this.dataKeys = this.model.marker.getDataKeysPerHook();
-    //const labelNames = this.labelNames = this.model.marker.getLabelHookNames();
-
     const frameConcept = this.model.encoding.frame.data.concept;
     const steps = this.model.encoding.frame.domainValues.map(v => ({[frameConcept]: v}));
     const timeFormatter = this.localise;
     const valueFormatter = this.localise;
     const KEYS = this.dataMap.key;
-
-    // const keys = this.model.marker.getKeys()
-    //   .map(key => { 
-    //     key[Symbol.for('key')] = utils.getKey(key, dataKeys.hook);
-    //     return key;
-    //   })
-    //   .filter(key => steps.some(step => values[step].hook[key[Symbol.for('key')]] || values[step].hook[key[Symbol.for('key')]] === 0))
-    //   .sort(function(b, a) {
-    //     return d3.descending(values[_this.model.time.value].label[utils.getKey(a, dataKeys.label)], values[_this.model.time.value].label[utils.getKey(b, dataKeys.label)]);
-    //   });
 
     this.DOM.table.select("div.vzb-spreadsheet-loading").remove();
     this.DOM.actions.classed("vzb-hidden", false);
