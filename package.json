@@ -1,6 +1,6 @@
 {
   "name": "vizabi-spreadsheet",
-  "version": "3.0.2",
+  "version": "3.0.3",
   "description": "Spreadsheet tool for Vizabi",
   "scripts": {
     "prepublishOnly": "npm run build",
