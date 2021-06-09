@@ -46,6 +46,13 @@ class _VizabiSpreadsheet extends BaseComponent {
     this.DOM.title.on("click", () => this.treemenu().updateView().toggle());
   }
 
+  get MDL() {
+    return {
+      number: this.model.encoding.number,
+      frame: this.model.encoding.frame
+    };
+  }
+
   draw() {
     this.localise = this.services.locale.auto();
     this.fixHeaders = this.ui.fixHeaders;
@@ -59,8 +66,8 @@ class _VizabiSpreadsheet extends BaseComponent {
         .alignY("top")
         .title("")
         .scaletypeSelectorDisabled(true)
-        .encoding("hook");
-      if (!this.model.encoding.hook.data.concept) {
+        .encoding("number");
+      if (!this.MDL.number.data.concept) {
         this.treemenu().showWhenReady(true);
       }
     }
@@ -72,8 +79,7 @@ class _VizabiSpreadsheet extends BaseComponent {
   }
 
   _drawTitle() {
-    const concept = this.model.encoding.hook.data.conceptProps;
-  
+    const concept = this.MDL.number.data.conceptProps;  
     this.DOM.title.text(concept ? concept.name : "Select an indicator");
   }
 
@@ -82,7 +88,7 @@ class _VizabiSpreadsheet extends BaseComponent {
   }
 
   _drawDataTable() {
-    const concept = this.model.encoding.hook.data.conceptProps;
+    const concept = this.MDL.number.data.conceptProps;
     if (!concept) return;
 
     const _this = this;
@@ -92,8 +98,8 @@ class _VizabiSpreadsheet extends BaseComponent {
     this.DOM.table.classed("vzb-spreadsheet-table-fix-headers", this.fixHeaders);
     this.DOM.table.append("div").attr("class","vzb-spreadsheet-loading").text("data table is loading...");
     
-    const frameConcept = this.model.encoding.frame.data.concept;
-    const steps = this.model.encoding.frame.domainValues.map(v => ({[frameConcept]: v}));
+    const frameConcept = this.MDL.frame.data.concept;
+    const steps = this.MDL.frame.domainValues.map(v => ({[frameConcept]: v}));
     const timeFormatter = this.localise;
     const valueFormatter = this.localise;
     const KEYS = this.dataMap.key;
@@ -120,7 +126,7 @@ class _VizabiSpreadsheet extends BaseComponent {
             if (i==0 && j<KEYS.length) return c;
             if (j<KEYS.length) return labelObj[c];
             if (i==0) return timeFormatter(c[frameConcept]);
-            return valueFormatter(r.get(c)?.hook) || "";
+            return valueFormatter(r.get(c)?.number) || "";
           });
       });
 
@@ -164,7 +170,7 @@ class _VizabiSpreadsheet extends BaseComponent {
   }
 
   _drawAboutSection() {
-    const concept = this.model.encoding.hook.data.conceptProps;
+    const concept = this.MDL.number.data.conceptProps;
     if (!concept) return;
 
     //    const dataAvailable = this.model.data.dataAvailability.datapoints
@@ -195,7 +201,7 @@ class _VizabiSpreadsheet extends BaseComponent {
     //    selectorEl.property("selectedIndex", selectedIndex === -1 ? 0: selectedIndex);
     //    if (selectedIndex === -1) selectorEl.dispatch("change");
     //
-    //    this.model.marker.hook.setWhich({concept: which, dataSource: "data"});
+    //    this.model.marker.number.setWhich({concept: which, dataSource: "data"});
 
     
     this.DOM.about.selectAll("div").remove();
@@ -215,7 +221,7 @@ class _VizabiSpreadsheet extends BaseComponent {
   }
 
   _drawActionsSection() {
-    const concept = this.model.encoding.hook.data.conceptProps;
+    const concept = this.MDL.number.data.conceptProps;
     if (!concept) return;
 
     this.DOM.actions.selectAll("div").remove();
@@ -278,5 +284,5 @@ class _VizabiSpreadsheet extends BaseComponent {
 
 export const VizabiSpreadsheet = decorate(_VizabiSpreadsheet, {
   "dataMap": computed,
-  //"MDL": computed,
+  "MDL": computed
 });

@@ -16,8 +16,8 @@ export default class Spreadsheet extends BaseComponent {
 
     config.Vizabi.utils.applyDefaults(config.model.markers.spreadsheet.config, Spreadsheet.DEFAULT_CORE);    
     //clear constant if concept is set
-    if (config.model.markers.spreadsheet.config.encoding.hook.data.concept) {
-      config.model.markers.spreadsheet.config.encoding.hook.data.constant = undefined;
+    if (config.model.markers.spreadsheet.config.encoding.number.data.concept) {
+      config.model.markers.spreadsheet.config.encoding.number.data.constant = undefined;
     }
 
 
@@ -60,9 +60,9 @@ Spreadsheet.DEFAULT_UI = {
 };
 
 Spreadsheet.DEFAULT_CORE = {
-  requiredEncodings: ["hook"],
+  requiredEncodings: ["number"],
   encoding: {
-    "hook": {
+    "number": {
       data: {
         constant: "true"
       },
