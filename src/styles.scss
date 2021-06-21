@@ -8,18 +8,15 @@
   .vzb-spreadsheet {
     @extend %vzb-chart-wrapper;
     
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
     background-color: white;
     
-    flex: 1 auto;
     display: flex;
     flex-direction: column;
-    
-    
+    grid-row-start: 1;
+    grid-row-end: -1;
+    grid-column-start: 1;
+    grid-column-end: -1;
+
     div#vzb-spreadsheet-title {
       flex: none;
       width: 100%;
@@ -123,7 +120,6 @@
     div#vzb-spreadsheet-table {
       flex: auto;
       padding: 10px 5px 0px 5px;
-      width: 100%;
       display: flex;
       flex-direction: row;
       overflow: scroll;
@@ -132,12 +128,12 @@
         padding-right: 0;
 
         .viz-spreadsheet-keytable-wrapper {
-          max-height: 100%; 
           .viz-spreadsheet-keytable {
             overflow: hidden;
           }
         }
         .viz-spreadsheet-table-wrapper {
+          display: flex;
           overflow: hidden;
           .viz-spreadsheet-table-header {
             overflow: hidden;

@@ -9,7 +9,8 @@ import {
 
 import {
   decorate,
-  computed
+  computed,
+  runInAction
 } from "mobx";
 
 
@@ -72,6 +73,7 @@ class _VizabiSpreadsheet extends BaseComponent {
       }
     }
 
+    this.addReaction(this._drawLoading);
     this.addReaction(this._drawTitle);
     this.addReaction(this._drawAboutSection);
     this.addReaction(this._drawActionsSection);
@@ -87,86 +89,93 @@ class _VizabiSpreadsheet extends BaseComponent {
     return this.model.dataMapCache.groupBy(this.model.dataMapCache.key.slice(0, -1), this.model.dataMapCache.key.slice(-1));
   }
 
-  _drawDataTable() {
-    const concept = this.MDL.number.data.conceptProps;
+  _drawLoading() {
+    const concept = this.MDL.number.data.concept;
     if (!concept) return;
-
-    const _this = this;
 
     this.DOM.table.select(".viz-spreadsheet-keytable-wrapper").remove();
     this.DOM.table.select(".viz-spreadsheet-table-wrapper").remove();
     this.DOM.table.classed("vzb-spreadsheet-table-fix-headers", this.fixHeaders);
     this.DOM.table.append("div").attr("class","vzb-spreadsheet-loading").text("data table is loading...");
+  }
+
+  _drawDataTable() {
+    this.DOM.table.selectAll("div.vzb-spreadsheet-loading").remove();
+
+    runInAction(() => {
+      const concept = this.MDL.number.data.concept;
+      if (!concept) return;
     
-    const frameConcept = this.MDL.frame.data.concept;
-    const steps = this.MDL.frame.domainValues.map(v => ({[frameConcept]: v}));
-    const timeFormatter = this.localise;
-    const valueFormatter = this.localise;
-    const KEYS = this.dataMap.key;
-
-    this.DOM.table.select("div.vzb-spreadsheet-loading").remove();
-    this.DOM.actions.classed("vzb-hidden", false);
-
-    const table = this.DOM.table
-      .append("div")
-      .classed("viz-spreadsheet-table-wrapper", true)
-      .append("table")
-      .attr("id", "table_" + this._id)
-      .classed("viz-spreadsheet-table", true);
-
-    table.selectAll("tr").data([{}, ...this.dataMap.values()])
-      .enter().append("tr")
-      .attr("class", (d, i) => i ? "viz-spreadsheet-tablerow" : "viz-spreadsheet-headrow")
-      .each(function(r, i){
-        const labelObj = i == 0 ? {} : r.values().next().value.label;
-        d3.select(this).selectAll("td").data(KEYS.concat(steps))
-          .enter().append("td")
-          .classed("viz-spreadsheet-keycell", (c,j) => j<KEYS.length)
-          .text((c, j) => {
-            if (i==0 && j<KEYS.length) return c;
-            if (j<KEYS.length) return labelObj[c];
-            if (i==0) return timeFormatter(c[frameConcept]);
-            return valueFormatter(r.get(c)?.number) || "";
-          });
-      });
-
-    if (this.fixHeaders) {
-
-      const keysTable = this.DOM.table
+      this.DOM.table.select(".viz-spreadsheet-keytable-wrapper").remove();
+      this.DOM.table.select(".viz-spreadsheet-table-wrapper").remove();
+      this.DOM.table.classed("vzb-spreadsheet-table-fix-headers", this.fixHeaders);
+      this.DOM.actions.classed("vzb-hidden", false);
+  
+      const frameConcept = this.MDL.frame.data.concept;
+      const steps = this.MDL.frame.domainValues.map(v => ({[frameConcept]: v}));
+      const timeFormatter = this.localise;
+      const valueFormatter = this.localise;
+      const KEYS = this.dataMap.key;
+  
+      const table = this.DOM.table
         .append("div")
-        .classed("viz-spreadsheet-keytable-wrapper", true)
-        .lower()
+        .classed("viz-spreadsheet-table-wrapper", true)
         .append("table")
-        .attr("id", "table_keys_" + this._id)
-        .classed("viz-spreadsheet-keytable", true);
+        .classed("viz-spreadsheet-table", true);
 
-      keysTable.selectAll("tr").data([{}, ...this.dataMap.values()])
+      const scrollBarWidth = this.fixHeaders ? table.node().offsetWidth - table.node().clientWidth : 0;
+
+      table.selectAll("tr").data([{}, ...this.dataMap.values()])
         .enter().append("tr")
         .attr("class", (d, i) => i ? "viz-spreadsheet-tablerow" : "viz-spreadsheet-headrow")
         .each(function(r, i){
           const labelObj = i == 0 ? {} : r.values().next().value.label;
-          d3.select(this).selectAll("td").data(KEYS)
+          d3.select(this).selectAll("td").data(KEYS.concat(steps))
             .enter().append("td")
-            .attr("data-caption", c => i == 0 ? c : null)
-            .text(c => {
-              if (i==0) return "";
-              return labelObj[c];
+            .classed("viz-spreadsheet-keycell", (c,j) => j<KEYS.length)
+            .text((c, j) => {
+              if (i==0 && j<KEYS.length) return c;
+              if (j<KEYS.length) return labelObj[c];
+              if (i==0) return timeFormatter(c[frameConcept]);
+              return valueFormatter(r.get(c)?.number) || "";
             });
         });
 
-      const tableHeader = table.clone(true).lower()
-        .attr("id", "table_header_" + _this._id)
-        .attr("class", "viz-spreadsheet-table-header");
+      if (this.fixHeaders) {
 
-      const scrollBarWidth = table.node().offsetWidth - table.node().clientWidth;
-      tableHeader.style("margin-right", scrollBarWidth + "px");
-      keysTable.style("height", `calc(100% - ${scrollBarWidth}px)`);
+        const keysTable = this.DOM.table
+          .append("div")
+          .classed("viz-spreadsheet-keytable-wrapper", true)
+          .lower()
+          .append("table")
+          .classed("viz-spreadsheet-keytable", true)
+          .style("height", `calc(100% - ${scrollBarWidth}px)`);
 
-      table.on("scroll", function () {
-        keysTable.node().scrollTop = this.scrollTop;
-        tableHeader.node().scrollLeft = this.scrollLeft;
-      });
-    }
+        keysTable.selectAll("tr").data([{}, ...this.dataMap.values()])
+          .enter().append("tr")
+          .attr("class", (d, i) => i ? "viz-spreadsheet-tablerow" : "viz-spreadsheet-headrow")
+          .each(function(r, i){
+            const labelObj = i == 0 ? {} : r.values().next().value.label;
+            d3.select(this).selectAll("td").data(KEYS)
+              .enter().append("td")
+              .attr("data-caption", c => i == 0 ? c : null)
+              .text(c => {
+                if (i==0) return "";
+                return labelObj[c];
+              });
+          });
+
+        const tableHeader = table
+          .clone(true).lower()
+          .attr("class", "viz-spreadsheet-table-header")
+          .style("margin-right", scrollBarWidth + "px");
+
+        table.on("scroll", function () {
+          keysTable.node().scrollTop = this.scrollTop;
+          tableHeader.node().scrollLeft = this.scrollLeft;
+        });
+      }
+    });
   }
 
   _drawAboutSection() {
