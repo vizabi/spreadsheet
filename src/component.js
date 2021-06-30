@@ -121,6 +121,7 @@ class _VizabiSpreadsheet extends BaseComponent {
         .append("div")
         .classed("viz-spreadsheet-table-wrapper", true)
         .append("table")
+        .attr("id", "table_" + this.id)
         .classed("viz-spreadsheet-table", true);
 
       const scrollBarWidth = this.fixHeaders ? table.node().offsetWidth - table.node().clientWidth : 0;
@@ -286,7 +287,7 @@ class _VizabiSpreadsheet extends BaseComponent {
       return wbout;
     }
 
-    export_table_to_excel("table_" + this._id, type, fileName);    
+    export_table_to_excel("table_" + this.id, type, fileName);    
   }
 
 }
