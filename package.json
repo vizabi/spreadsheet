@@ -1,6 +1,6 @@
 {
   "name": "vizabi-spreadsheet",
-  "version": "3.0.6",
+  "version": "3.0.7",
   "description": "Spreadsheet tool for Vizabi",
   "scripts": {
     "prepublishOnly": "npm run build",
@@ -41,6 +41,10 @@
     "url": "https://github.com/vizabi/vizabi-spreadsheet/issues"
   },
   "homepage": "https://github.com/vizabi/vizabi-spreadsheet#readme",
+  "peerDependencies": {
+    "mobx": "^5.15.7",
+    "d3": "^6.7.0"
+  },
   "devDependencies": {
     "cross-env": "^5.0.1",
     "vizabi-shared-components": "../vizabi-shared-components",
