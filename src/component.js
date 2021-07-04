@@ -254,7 +254,7 @@ class _VizabiSpreadsheet extends BaseComponent {
       .selectAll("a").data(["csv", "xlsx"])
       .enter().append("a")
       .text(type=>type)
-      .on("click", type => this._download(type, concept.concept));  
+      .on("click", (event, type) => this._download(type, concept.concept));  
   }
   
   _viewAs(chart, concept){
