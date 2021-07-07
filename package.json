@@ -4,7 +4,7 @@
   "description": "Spreadsheet tool for Vizabi",
   "scripts": {
     "prepublishOnly": "npm run build",
-    "link": "npm link ../vizabi-shared-components",
+    "link": "npm link ../@vizabi/shared-components",
     "start": "rollup -c",
     "build": "cross-env NODE_ENV=production rollup -c",
     "deploy": "tool-deploy"
@@ -18,7 +18,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/vizabi/vizabi-spreadsheet.git"
+    "url": "git+https://github.com/@vizabi/spreadsheet.git"
   },
   "author": {
     "name": "Gapminder Foundation",
@@ -41,16 +41,16 @@
   ],
   "license": "CC-BY-4.0",
   "bugs": {
-    "url": "https://github.com/vizabi/vizabi-spreadsheet/issues"
+    "url": "https://github.com/@vizabi/spreadsheet/issues"
   },
-  "homepage": "https://github.com/vizabi/vizabi-spreadsheet#readme",
+  "homepage": "https://github.com/@vizabi/spreadsheet#readme",
   "peerDependencies": {
     "mobx": "^5.15.7",
     "d3": "^6.7.0"
   },
   "devDependencies": {
     "cross-env": "^5.0.1",
-    "vizabi-shared-components": "../shared-components",
+    "@vizabi/shared-components": "../shared-components",
     "vizabi-tool-bundler": "1.1.1"
   },
   "dependencies": {
