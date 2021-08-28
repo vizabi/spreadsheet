@@ -1,6 +1,6 @@
 {
   "name": "@vizabi/spreadsheet",
-  "version": "3.0.9",
+  "version": "3.0.10",
   "description": "Spreadsheet tool for Vizabi",
   "scripts": {
     "prepublishOnly": "npm run build",
@@ -49,9 +49,9 @@
     "d3": "^6.7.0"
   },
   "devDependencies": {
-    "cross-env": "^5.0.1",
     "@vizabi/shared-components": "../shared-components",
-    "vizabi-tool-bundler": "1.1.1"
+    "cross-env": "^5.0.1",
+    "vizabi-tool-bundler": "^1.2.1"
   },
   "dependencies": {
     "xlsx": "^0.17.0",
