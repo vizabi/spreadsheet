@@ -6,7 +6,7 @@ import {
   TreeMenu,
   CapitalVizabiService,
   versionInfo
-} from "VizabiSharedComponents";
+} from "@vizabi/shared-components";
 import { VizabiSpreadsheet } from "./component";
 
 
