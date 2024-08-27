@@ -67,7 +67,7 @@ Spreadsheet.DEFAULT_CORE = {
         constant: "true"
       },
       scale: {
-        allowedTypes: ["linear", "log", "genericLog", "pow", "point"]
+        allowedTypes: ["linear", "log", "genericLog", "pow"]
       }
     },
     "label": {
