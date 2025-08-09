@@ -5,6 +5,24 @@
 
 .vzb-tool {
   
+  .vzb-dialogs {
+    position: absolute;
+    width: 100%;
+    justify-items: end;
+    
+    .vzb-dialogs-dialog {
+      position: static;
+      width: auto;
+    
+      .vzb-timeonrows-switch {
+        label {
+          position: static;
+          margin-left: 25px;
+        }
+      }
+    }
+  }
+
   .vzb-spreadsheet {
     @extend %vzb-chart-wrapper;
     
@@ -114,8 +132,6 @@
       }
       
     }
-    
-    
 
     div#vzb-spreadsheet-table {
       flex: auto;
@@ -140,6 +156,9 @@
             flex: none;
             max-height: calc(2em + 3px);
             padding-right: 5px;
+          }
+          .viz-spreadsheet-table-export {
+            display: none;
           }
           .viz-spreadsheet-table {
             overflow: scroll;
@@ -173,6 +192,7 @@
         margin-top: 30px;
       }
     }
+
   }
 
 

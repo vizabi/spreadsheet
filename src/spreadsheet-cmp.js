@@ -29,6 +29,7 @@ class _VizabiSpreadsheet extends BaseComponent {
         <div id="vzb-spreadsheet-about"></div>
         <div id="vzb-spreadsheet-actions"></div>
         <div id="vzb-spreadsheet-table"></div>  
+        <div id="vzb-spreadsheet-table-export"></div>  
       `;
 
     super(config);
@@ -58,6 +59,7 @@ class _VizabiSpreadsheet extends BaseComponent {
   draw() {
     this.localise = this.services.locale.auto();
     this.fixHeaders = this.ui.fixHeaders;
+    this.timeOnRows = this.ui.timeOnRows;
 
     //if (this.updateLayoutProfile()) return; //return if exists with error
     this.DOM.title.classed("vzb-disabled", this.treemenu().state.ownReadiness !== Utils.STATUS.READY);
@@ -87,7 +89,8 @@ class _VizabiSpreadsheet extends BaseComponent {
   }
 
   get dataMap() {
-    return this.model.dataMapCache.groupBy(this.model.dataMapCache.key.slice(0, -1), this.model.dataMapCache.key.slice(-1));
+    const groups = [this.model.dataMapCache.key.slice(0, -1), this.model.dataMapCache.key.slice(-1)];
+    return this.model.dataMapCache.groupBy(...(this.timeOnRows ? groups.reverse() : groups));
   }
 
   _drawLoading() {
@@ -101,11 +104,14 @@ class _VizabiSpreadsheet extends BaseComponent {
   }
 
   _drawDataTable() {
+    this.ui.timeOnRows;
     this.DOM.table.selectAll("div.vzb-spreadsheet-loading").remove();
 
     runInAction(() => {
       const concept = this.MDL.number.data.concept;
       if (!concept) return;
+
+      const _this = this;
     
       this.DOM.table.select(".viz-spreadsheet-keytable-wrapper").remove();
       this.DOM.table.select(".viz-spreadsheet-table-wrapper").remove();
@@ -113,35 +119,48 @@ class _VizabiSpreadsheet extends BaseComponent {
       this.DOM.actions.classed("vzb-hidden", false);
   
       const frameConcept = this.MDL.frame.data.concept;
-      const steps = this.MDL.frame.domainValues.map(v => ({[frameConcept]: v}));
       const timeFormatter = this.localise;
       const valueFormatter = this.localise;
+      const exportValueFormatter = v => v;
       const KEYS = this.dataMap.key;
-  
-      const table = this.DOM.table
+      const COLUMN_KEYS = this.dataMap.descendantKeys;
+      const steps = this.timeOnRows ? [...this.model.dataMapCache.groupBy(COLUMN_KEYS).flatten().values()] : this.MDL.frame.domainValues.map(v => ({[frameConcept]: v}));
+
+      const tableWrapper = this.DOM.table
         .append("div")
-        .classed("viz-spreadsheet-table-wrapper", true)
+        .classed("viz-spreadsheet-table-wrapper", true);
+      const table = tableWrapper
         .append("table")
         .attr("id", "table_" + this.id)
         .classed("viz-spreadsheet-table", true);
+      const exportTable = tableWrapper
+        .append("div")
+        .append("table")
+        .attr("id", "export_table_" + this.id)
+        .classed("viz-spreadsheet-table-export", true);
 
       const scrollBarWidth = this.fixHeaders ? table.node().offsetWidth - table.node().clientWidth : 0;
 
-      table.selectAll("tr").data([{}, ...this.dataMap.values()])
-        .enter().append("tr")
-        .attr("class", (d, i) => i ? "viz-spreadsheet-tablerow" : "viz-spreadsheet-headrow")
-        .each(function(r, i){
-          const labelObj = i == 0 ? {} : r.values().next().value.label;
-          d3.select(this).selectAll("td").data(KEYS.concat(steps))
-            .enter().append("td")
-            .classed("viz-spreadsheet-keycell", (c,j) => j<KEYS.length)
-            .text((c, j) => {
-              if (i==0 && j<KEYS.length) return c;
-              if (j<KEYS.length) return labelObj[c];
-              if (i==0) return timeFormatter(c[frameConcept]);
-              return valueFormatter(r.get(c)?.number) || "";
-            });
-        });
+      function fillTable(tableSelector, _valueFormatter) {
+        tableSelector.selectAll("tr").data([{}, ..._this.dataMap.values()])
+          .enter().append("tr")
+          .attr("class", (d, i) => i ? "viz-spreadsheet-tablerow" : "viz-spreadsheet-headrow")
+          .each(function(r, i){
+            const labelObj = i == 0 ? {} : _this.timeOnRows ? { [frameConcept]: timeFormatter(r.values().next().value[frameConcept]) } : r.values().next().value.label;
+            d3.select(this).selectAll("td").data(KEYS.concat(steps))
+              .enter().append("td")
+              .classed("viz-spreadsheet-keycell", (c,j) => j<KEYS.length)
+              .text((c, j) => {
+                if (i==0 && j<KEYS.length) return c;
+                if (j<KEYS.length) return labelObj[c];
+                if (i==0) return _this.timeOnRows ? COLUMN_KEYS.map(key => c.label[key]).join(", ") : timeFormatter(c[frameConcept]);
+                return _valueFormatter(r.get(c)?.number) || "";
+              });
+          });
+      }
+
+      fillTable(table, valueFormatter);
+      fillTable(exportTable, exportValueFormatter);
 
       if (this.fixHeaders) {
 
@@ -157,7 +176,7 @@ class _VizabiSpreadsheet extends BaseComponent {
           .enter().append("tr")
           .attr("class", (d, i) => i ? "viz-spreadsheet-tablerow" : "viz-spreadsheet-headrow")
           .each(function(r, i){
-            const labelObj = i == 0 ? {} : r.values().next().value.label;
+            const labelObj = i == 0 ? {} : _this.timeOnRows ? { [frameConcept]: timeFormatter(r.values().next().value[frameConcept]) } : r.values().next().value.label;
             d3.select(this).selectAll("td").data(KEYS)
               .enter().append("td")
               .attr("data-caption", c => i == 0 ? c : null)
@@ -288,7 +307,7 @@ class _VizabiSpreadsheet extends BaseComponent {
       return wbout;
     }
 
-    export_table_to_excel("table_" + this.id, type, fileName);    
+    export_table_to_excel("export_table_" + this.id, type, fileName);    
   }
 
 }

@@ -5,7 +5,8 @@ import {
   LayoutService,
   TreeMenu,
   CapitalVizabiService,
-  versionInfo
+  versionInfo,
+  SimpleCheckbox
 } from "@vizabi/shared-components";
 import { VizabiSpreadsheet } from "./spreadsheet-cmp.js";
 
@@ -30,7 +31,14 @@ export default class Spreadsheet extends BaseComponent {
       placeholder: ".vzb-spreadsheet",
       model: marker,
       name: "chart"
-    },{
+    }, {
+      type: SimpleCheckbox,
+      placeholder: ".vzb-timeonrows-switch",
+      options: {
+        checkbox: "timeOnRows",
+        submodel: "root.ui.chart"
+      }
+    }, {
       type: TreeMenu,
       placeholder: ".vzb-treemenu",
       model: marker,
@@ -38,6 +46,11 @@ export default class Spreadsheet extends BaseComponent {
     }];
 
     config.template = `
+      <div class="vzb-dialogs">
+        <div class="vzb-dialogs-dialog">
+          <div class="vzb-timeonrows-switch"></div>
+        </div>  
+      </div>
       <div class="vzb-spreadsheet"></div>
       <div class="vzb-treemenu"></div>
     `;
@@ -55,7 +68,8 @@ export default class Spreadsheet extends BaseComponent {
 
 Spreadsheet.DEFAULT_UI = {
   chart: {
-    fixHeaders: true
+    fixHeaders: true,
+    timeOnRows: false
   },
 };
 
