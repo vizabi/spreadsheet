@@ -133,50 +133,57 @@
       
     }
 
+    div#vzb-spreadsheet-table-export {
+      display: none;
+    }
+
     div#vzb-spreadsheet-table {
       flex: auto;
-      padding: 10px 5px 0px 5px;
       display: flex;
       flex-direction: row;
       overflow: scroll;
-      &.vzb-spreadsheet-table-fix-headers {
-        overflow: hidden;
-        padding-right: 0;
+      margin: 10px 0 0 8px;
+      padding-right: 5px;
 
-        .viz-spreadsheet-keytable-wrapper {
-          .viz-spreadsheet-keytable {
-            overflow: hidden;
-          }
+      &.vzb-spreadsheet-table-time-in-rows {
+        td {
+          width: 20%;
         }
-        .viz-spreadsheet-table-wrapper {
-          display: flex;
-          overflow: hidden;
-          .viz-spreadsheet-table-header {
-            overflow: hidden;
-            flex: none;
-            max-height: calc(2em + 3px);
-            padding-right: 5px;
+      }
+      &.vzb-spreadsheet-table-fix-headers {
+        .viz-spreadsheet-table {
+          border-spacing: 0;
+          td {
+            border-right: 2px solid white;
           }
-          .viz-spreadsheet-table-export {
-            display: none;
+        
+          .viz-spreadsheet-tablerow:nth-child(2n+3) td.viz-spreadsheet-keycell {
+            background-color: $vzb-color-primary-lightest;
           }
-          .viz-spreadsheet-table {
-            overflow: scroll;
-            padding-right: 5px;
-            .viz-spreadsheet-headrow {
-              line-height: 0;
-              opacity: 0;
-              td {
-                padding-top: 0;
-                padding-bottom: 0;
-                border-bottom: none;
-              }
+        
+          tr.viz-spreadsheet-headrow {
+            .viz-spreadsheet-keycell {
+              z-index: 3;
+              border-bottom-right-radius: 4px;
+            }
+
+            td {
+              position: sticky;
+              top: 0;
+              z-index: 2;
+              background-color: white;
+              border-bottom-right-radius: 2px;
+              corner-shape: notch;
             }
           }
-          .viz-spreadsheet-keycell {
-            display: none;
+
+          .viz-spreadsheet-keycell {            
+            position: sticky;
+            left: 0;
+            z-index: 1;
+            background-color: white;
+            border-right: 4px solid white;
           }
-                     
         }
       }
       
@@ -192,7 +199,6 @@
         margin-top: 30px;
       }
     }
-
   }
 
 
@@ -211,10 +217,7 @@
       background: $vzb-color-primary-lightest;
     }
 
-    &.viz-spreadsheet-table,
-    &.viz-spreadsheet-table-header {
-      display: block;
-
+    &.viz-spreadsheet-table {
       .viz-spreadsheet-keycell {
         font-family: inherit;
         text-align: inherit;
@@ -227,26 +230,6 @@
       }
     }
 
-  }
-
-  .viz-spreadsheet-keytable {
-    display: block;
-    .viz-spreadsheet-headrow {
-      td::before {
-        content: attr(data-caption);
-        position: absolute;
-        margin-top: calc(-2em + 1px);
-        width: calc(100% - 5px);
-        border-bottom: 1px solid $vzb-color-primary;;
-        background-color: white;
-      }
-    }
-  }
-  
-  .viz-spreadsheet-keytable-wrapper {
-    position: relative;
-    margin-top: 2em;
-    flex: none;
   }
 
   .viz-spreadsheet-table-wrapper {

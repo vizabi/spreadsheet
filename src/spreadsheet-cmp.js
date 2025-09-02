@@ -40,7 +40,8 @@ class _VizabiSpreadsheet extends BaseComponent {
       title: this.element.select("#vzb-spreadsheet-title"),
       about: this.element.select("#vzb-spreadsheet-about"),
       actions: this.element.select("#vzb-spreadsheet-actions"),
-      table: this.element.select("#vzb-spreadsheet-table")
+      table: this.element.select("#vzb-spreadsheet-table"),
+      exportTable: this.element.select("#vzb-spreadsheet-table-export")      
     };
 
     this.root.element.classed("vzb-timeslider-off", true);
@@ -90,15 +91,15 @@ class _VizabiSpreadsheet extends BaseComponent {
 
   get dataMap() {
     const groups = [this.model.dataMapCache.key.slice(0, -1), this.model.dataMapCache.key.slice(-1)];
-    return this.model.dataMapCache.groupBy(...(this.timeOnRows ? groups.reverse() : groups));
+    return this.timeOnRows ? this.model.dataMapCache : this.model.dataMapCache.groupBy(...groups);
   }
 
   _drawLoading() {
     const concept = this.MDL.number.data.concept;
     if (!concept) return;
 
-    this.DOM.table.select(".viz-spreadsheet-keytable-wrapper").remove();
     this.DOM.table.select(".viz-spreadsheet-table-wrapper").remove();
+    this.DOM.exportTable.select("table").remove();
     this.DOM.table.classed("vzb-spreadsheet-table-fix-headers", this.fixHeaders);
     this.DOM.table.append("div").attr("class","vzb-spreadsheet-loading").text("data table is loading...");
   }
@@ -113,9 +114,10 @@ class _VizabiSpreadsheet extends BaseComponent {
 
       const _this = this;
     
-      this.DOM.table.select(".viz-spreadsheet-keytable-wrapper").remove();
       this.DOM.table.select(".viz-spreadsheet-table-wrapper").remove();
+      this.DOM.exportTable.select("table").remove();
       this.DOM.table.classed("vzb-spreadsheet-table-fix-headers", this.fixHeaders);
+      this.DOM.table.classed("vzb-spreadsheet-table-time-in-rows", this.timeOnRows);
       this.DOM.actions.classed("vzb-hidden", false);
   
       const frameConcept = this.MDL.frame.data.concept;
@@ -123,8 +125,8 @@ class _VizabiSpreadsheet extends BaseComponent {
       const valueFormatter = this.localise;
       const exportValueFormatter = v => v;
       const KEYS = this.dataMap.key;
-      const COLUMN_KEYS = this.dataMap.descendantKeys;
-      const steps = this.timeOnRows ? [...this.model.dataMapCache.groupBy(COLUMN_KEYS).flatten().values()] : this.MDL.frame.domainValues.map(v => ({[frameConcept]: v}));
+      const numberConceptId = this.MDL.number.data.conceptProps.concept || "number";
+      const steps = this.timeOnRows ? ["number"] : this.MDL.frame.domainValues.map(v => ({[frameConcept]: v}));
 
       const tableWrapper = this.DOM.table
         .append("div")
@@ -133,28 +135,25 @@ class _VizabiSpreadsheet extends BaseComponent {
         .append("table")
         .attr("id", "table_" + this.id)
         .classed("viz-spreadsheet-table", true);
-      const exportTable = tableWrapper
-        .append("div")
+      const exportTable = this.DOM.exportTable
         .append("table")
         .attr("id", "export_table_" + this.id)
         .classed("viz-spreadsheet-table-export", true);
-
-      const scrollBarWidth = this.fixHeaders ? table.node().offsetWidth - table.node().clientWidth : 0;
 
       function fillTable(tableSelector, _valueFormatter) {
         tableSelector.selectAll("tr").data([{}, ..._this.dataMap.values()])
           .enter().append("tr")
           .attr("class", (d, i) => i ? "viz-spreadsheet-tablerow" : "viz-spreadsheet-headrow")
           .each(function(r, i){
-            const labelObj = i == 0 ? {} : _this.timeOnRows ? { [frameConcept]: timeFormatter(r.values().next().value[frameConcept]) } : r.values().next().value.label;
+            const labelObj = i == 0 ? {} : _this.timeOnRows ? { [frameConcept]: timeFormatter(r[frameConcept]) } : r.values().next().value.label;
             d3.select(this).selectAll("td").data(KEYS.concat(steps))
               .enter().append("td")
               .classed("viz-spreadsheet-keycell", (c,j) => j<KEYS.length)
               .text((c, j) => {
                 if (i==0 && j<KEYS.length) return c;
-                if (j<KEYS.length) return labelObj[c];
-                if (i==0) return _this.timeOnRows ? COLUMN_KEYS.map(key => c.label[key]).join(", ") : timeFormatter(c[frameConcept]);
-                return _valueFormatter(r.get(c)?.number) || "";
+                if (j<KEYS.length) return labelObj[c] || r[c];
+                if (i==0) return _this.timeOnRows ? numberConceptId : timeFormatter(c[frameConcept]);
+                return _valueFormatter(_this.timeOnRows ? r[c] : r.get(c)?.number) || "";
               });
           });
       }
@@ -162,39 +161,16 @@ class _VizabiSpreadsheet extends BaseComponent {
       fillTable(table, valueFormatter);
       fillTable(exportTable, exportValueFormatter);
 
-      if (this.fixHeaders) {
-
-        const keysTable = this.DOM.table
-          .append("div")
-          .classed("viz-spreadsheet-keytable-wrapper", true)
-          .lower()
-          .append("table")
-          .classed("viz-spreadsheet-keytable", true)
-          .style("height", `calc(100% - ${scrollBarWidth}px)`);
-
-        keysTable.selectAll("tr").data([{}, ...this.dataMap.values()])
-          .enter().append("tr")
-          .attr("class", (d, i) => i ? "viz-spreadsheet-tablerow" : "viz-spreadsheet-headrow")
-          .each(function(r, i){
-            const labelObj = i == 0 ? {} : _this.timeOnRows ? { [frameConcept]: timeFormatter(r.values().next().value[frameConcept]) } : r.values().next().value.label;
-            d3.select(this).selectAll("td").data(KEYS)
-              .enter().append("td")
-              .attr("data-caption", c => i == 0 ? c : null)
-              .text(c => {
-                if (i==0) return "";
-                return labelObj[c];
-              });
-          });
-
-        const tableHeader = table
-          .clone(true).lower()
-          .attr("class", "viz-spreadsheet-table-header")
-          .style("margin-right", scrollBarWidth + "px");
-
-        table.on("scroll", function () {
-          keysTable.node().scrollTop = this.scrollTop;
-          tableHeader.node().scrollLeft = this.scrollLeft;
+      if (this.fixHeaders && !this.timeOnRows && KEYS.length > 1) {
+        const keysSelection = table.selectAll("tr").selectAll(".viz-spreadsheet-keycell");
+        const headerWidths = [];
+        table.select("tr").selectAll(".viz-spreadsheet-keycell").each(function(d, i) {
+          headerWidths[i] = this.getBoundingClientRect().width;
         });
+        keysSelection.each(function(d, i) {
+          if (i == 0) return;
+          d3.select(this).style("left", headerWidths[i - 1] + "px");
+        })
       }
     });
   }
