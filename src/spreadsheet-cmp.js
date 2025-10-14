@@ -286,7 +286,7 @@ class _VizabiSpreadsheet extends BaseComponent {
   }
   
   _viewAs(chart, concept){
-    const scaleType = (JSON.parse(concept.scales) || [])[0] || "linear";
+    const scaleType = concept.scales && JSON.parse(concept.scales)[0].trim() || "linear";
     return window.location.origin + window.location.pathname 
       + `#$model$markers$${chart.marker}$encoding$${chart.encoding}$data$concept=${concept.concept};&scale$domain:null&zoomed:null&type=${scaleType};;;;;;&chart-type=${chart.toolsPageChartType}&url=v1`;    
   }
