@@ -16,9 +16,8 @@ import {
 
 
 const charts = {
-  BubbleChart: {toolsPageChartType: "bubbles", marker: "bubble", icon: "🎈", encoding: "y"},
-  //  BubbleMap: {toolsPageChartType: "map", marker: "bubble", icon: "🌍", encoding: "color"},
-  LineChart: {toolsPageChartType: "linechart", marker: "line", icon: "〽️", encoding: "y"}
+  BubbleChart: {label: "Bubbles (as Y axis)", toolsPageChartType: "bubbles", marker: "bubble", icon: "🏀", encoding: "y"},
+  ExtApiMap: {label: "Map (as area color)", toolsPageChartType: "extapimap", marker: "bubble", icon: "🗺", encoding: "color_map"}
 };
 
 class _VizabiSpreadsheet extends BaseComponent {
@@ -53,14 +52,15 @@ class _VizabiSpreadsheet extends BaseComponent {
   get MDL() {
     return {
       number: this.model.encoding.number,
-      frame: this.model.encoding.frame
+      frame: this.model.encoding.frame,
+      label: this.model.encoding.label,
     };
   }
 
   draw() {
     this.localise = this.services.locale.auto();
     this.fixHeaders = this.ui.fixHeaders;
-    this.timeOnRows = this.ui.timeOnRows;
+    this.pivot = this.ui.pivot;
 
     //if (this.updateLayoutProfile()) return; //return if exists with error
     this.DOM.title.classed("vzb-disabled", this.treemenu().state.ownReadiness !== Utils.STATUS.READY);
@@ -91,7 +91,7 @@ class _VizabiSpreadsheet extends BaseComponent {
 
   get dataMap() {
     const groups = [this.model.dataMapCache.key.slice(0, -1), this.model.dataMapCache.key.slice(-1)];
-    return this.timeOnRows ? this.model.dataMapCache : this.model.dataMapCache.groupBy(...groups);
+    return this.pivot ? this.model.dataMapCache.groupBy(...groups) : this.model.dataMapCache;
   }
 
   _drawLoading() {
@@ -105,7 +105,7 @@ class _VizabiSpreadsheet extends BaseComponent {
   }
 
   _drawDataTable() {
-    this.ui.timeOnRows;
+    this.ui.pivot;
     this.DOM.table.selectAll("div.vzb-spreadsheet-loading").remove();
 
     runInAction(() => {
@@ -117,16 +117,17 @@ class _VizabiSpreadsheet extends BaseComponent {
       this.DOM.table.select(".viz-spreadsheet-table-wrapper").remove();
       this.DOM.exportTable.select("table").remove();
       this.DOM.table.classed("vzb-spreadsheet-table-fix-headers", this.fixHeaders);
-      this.DOM.table.classed("vzb-spreadsheet-table-time-in-rows", this.timeOnRows);
+      this.DOM.table.classed("vzb-spreadsheet-table-pivoted", this.pivot);
       this.DOM.actions.classed("vzb-hidden", false);
   
       const frameConcept = this.MDL.frame.data.concept;
+      const labelConcept = this.MDL.label.data.concept;
       const timeFormatter = this.localise;
       const valueFormatter = this.localise;
       const exportValueFormatter = v => v;
       const KEYS = this.dataMap.key;
       const numberConceptId = this.MDL.number.data.conceptProps.concept || "number";
-      const steps = this.timeOnRows ? ["number"] : this.MDL.frame.domainValues.map(v => ({[frameConcept]: v}));
+      const steps = this.pivot ? this.MDL.frame.domainValues.map(v => ({[frameConcept]: v})) : ["number"];
 
       const tableWrapper = this.DOM.table
         .append("div")
@@ -144,16 +145,33 @@ class _VizabiSpreadsheet extends BaseComponent {
         tableSelector.selectAll("tr").data([{}, ..._this.dataMap.values()])
           .enter().append("tr")
           .attr("class", (d, i) => i ? "viz-spreadsheet-tablerow" : "viz-spreadsheet-headrow")
-          .each(function(r, i){
-            const labelObj = i == 0 ? {} : _this.timeOnRows ? { [frameConcept]: timeFormatter(r[frameConcept]) } : r.values().next().value.label;
-            d3.select(this).selectAll("td").data(KEYS.concat(steps))
+          .each(function(row, rowIndex){
+            const example = rowIndex == 0 ? {} : (_this.pivot ? row.values().next().value : row );
+            d3.select(this).selectAll("td").data(KEYS.concat("label").concat(steps))
               .enter().append("td")
-              .classed("viz-spreadsheet-keycell", (c,j) => j<KEYS.length)
-              .text((c, j) => {
-                if (i==0 && j<KEYS.length) return c;
-                if (j<KEYS.length) return labelObj[c] || r[c];
-                if (i==0) return _this.timeOnRows ? numberConceptId : timeFormatter(c[frameConcept]);
-                return _valueFormatter(_this.timeOnRows ? r[c] : r.get(c)?.number) || "";
+              .classed("viz-spreadsheet-keycell", (col,colIndex) => colIndex <= KEYS.length)
+              .text((col, colIndex) => {
+                if (_this.pivot) {
+                  if (rowIndex==0) {
+                    if (colIndex < KEYS.length) return col;
+                    if (colIndex === KEYS.length) return labelConcept;
+                    if (colIndex > KEYS.length) return timeFormatter(col[frameConcept]);
+                  } else {
+                    if (colIndex < KEYS.length) return example[col];
+                    if (colIndex === KEYS.length) return _this._getLabelText(example);
+                    if (colIndex > KEYS.length) return _valueFormatter(row.get(col)?.number) || "";
+                  }
+                } else {
+                  if (rowIndex==0) {
+                    if (colIndex < KEYS.length) return col;
+                    if (colIndex === KEYS.length) return labelConcept;
+                    if (colIndex > KEYS.length) return numberConceptId;
+                  } else {
+                    if (colIndex < KEYS.length) return col !== frameConcept ? row[col] : timeFormatter(row[frameConcept]);
+                    if (colIndex === KEYS.length) return _this._getLabelText(example);
+                    if (colIndex > KEYS.length) return _valueFormatter(row?.number) || "";
+                  }
+                }
               });
           });
       }
@@ -161,7 +179,7 @@ class _VizabiSpreadsheet extends BaseComponent {
       fillTable(table, valueFormatter);
       fillTable(exportTable, exportValueFormatter);
 
-      if (this.fixHeaders && !this.timeOnRows && KEYS.length > 1) {
+      if (this.fixHeaders && this.pivot && KEYS.length > 1) {
         const keysSelection = table.selectAll("tr").selectAll(".viz-spreadsheet-keycell");
         const headerWidths = [];
         table.select("tr").selectAll(".viz-spreadsheet-keycell").each(function(d, i) {
@@ -173,6 +191,20 @@ class _VizabiSpreadsheet extends BaseComponent {
         })
       }
     });
+  }
+
+  _getLabelText(d) {
+    const markerSpace = this.model.data.space;
+    if (typeof d.label == "object") 
+      return Object.entries(d.label)
+        .filter(([k, v]) => k != this.MDL.frame.data.concept)
+        //sort parts of the name along the marker space array, so we get geo, gender instead of gender, geo
+        .sort(([ak, av], [bk, bv]) => markerSpace.indexOf(ak) - markerSpace.indexOf(bk))
+        //add keys where values are numbers, such as "age: 69"
+        .map(([k, v]) => utils.isNumber(v) ? k + ": " + v : v)
+        .join(", ");
+    if (d.label != null) return "" + d.label;
+    return d[Symbol.for("key")];
   }
 
   _drawAboutSection() {
@@ -236,11 +268,11 @@ class _VizabiSpreadsheet extends BaseComponent {
 
     this.DOM.actions.append("div")
       .attr("class", "vzb-spreadsheet-viewas")
-      .text("View as:")
+      .text("Send to:")
       .selectAll("a").data(Object.keys(charts))
       .enter().append("a")
-      .text(chart=>charts[chart].icon)
-      .attr("title", chart=>chart)
+      .text(chart=>charts[chart].icon + " " + charts[chart].label)
+      .attr("title", chart=>charts[chart].label)
       .attr("target", "_blank")
       .attr("href", chart => this._viewAs(charts[chart], concept)); 
 

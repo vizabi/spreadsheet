@@ -5,8 +5,10 @@ import {
   LayoutService,
   TreeMenu,
   CapitalVizabiService,
-  versionInfo,
-  SimpleCheckbox
+  MarkerContextmenu,
+  Dialogs,
+  ButtonList,
+  versionInfo
 } from "@vizabi/shared-components";
 import { VizabiSpreadsheet } from "./spreadsheet-cmp.js";
 
@@ -32,26 +34,34 @@ export default class Spreadsheet extends BaseComponent {
       model: marker,
       name: "chart"
     }, {
-      type: SimpleCheckbox,
-      placeholder: ".vzb-timeonrows-switch",
-      options: {
-        checkbox: "timeOnRows",
-        submodel: "root.ui.chart"
-      }
-    }, {
       type: TreeMenu,
       placeholder: ".vzb-treemenu",
       model: marker,
       name: "tree-menu"
+    },{
+      type: MarkerContextmenu,
+      placeholder: ".vzb-marker-contextmenu",
+      model: marker,
+      name: "marker-contextmenu"
+    },{
+      type: Dialogs,
+      placeholder: ".vzb-dialogs",
+      model: marker,
+      name: "dialogs"
+    },{
+      type: ButtonList,
+      placeholder: ".vzb-buttonlist",
+      model: marker,
+      name: "buttons"
     }];
 
     config.template = `
-      <div class="vzb-dialogs">
-        <div class="vzb-dialogs-dialog">
-          <div class="vzb-timeonrows-switch"></div>
-        </div>  
-      </div>
       <div class="vzb-spreadsheet"></div>
+      <div class="vzb-sidebar">
+        <div class="vzb-dialogs"></div>
+        <div class="vzb-buttonlist"></div>
+      </div>
+      <div class="vzb-marker-contextmenu"></div>
       <div class="vzb-treemenu"></div>
     `;
   
@@ -67,9 +77,21 @@ export default class Spreadsheet extends BaseComponent {
 
 
 Spreadsheet.DEFAULT_UI = {
+  "buttons": {
+    "buttons": ["markercontrols", "pivot", "moreoptions", "sidebarcollapse"]
+  },
+  "dialogs": {
+    "dialogs": {
+      "popup": ["markercontrols", "moreoptions"],
+      "sidebar": ["markercontrols"],
+      "moreoptions": ["about"]
+    },
+    "markercontrols": {}
+  },
   chart: {
     fixHeaders: true,
-    timeOnRows: false
+    pivot: true,
+    opacitySelectDim: 0.3,
   },
 };
 

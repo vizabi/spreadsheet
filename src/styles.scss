@@ -13,13 +13,6 @@
     .vzb-dialogs-dialog {
       position: static;
       width: auto;
-    
-      .vzb-timeonrows-switch {
-        label {
-          position: static;
-          margin-left: 25px;
-        }
-      }
     }
   }
 
@@ -33,7 +26,7 @@
     grid-row-start: 1;
     grid-row-end: -1;
     grid-column-start: 1;
-    grid-column-end: -1;
+    grid-column-end: 2;
 
     div#vzb-spreadsheet-title {
       flex: none;
@@ -99,20 +92,17 @@
     div#vzb-spreadsheet-actions {
       flex: none;
       padding: 10px 5px;
-      text-transform: uppercase;
       min-height: 35px;
       display: flex;
       align-items: center;
-      
-      div {
-        position: absolute;
-      }
+      justify-content: space-between;
       
       div.vzb-spreadsheet-viewas {
         left: 5px;
       }
       
       div.vzb-spreadsheet-downloadas {
+        text-transform: uppercase;
         right: 5px;
       }
       
@@ -128,6 +118,7 @@
       div.vzb-spreadsheet-downloadas a {
         &::before {
           content: '⏬';
+          margin-right: 5px;
         }
       }
       
@@ -145,11 +136,6 @@
       margin: 10px 0 0 8px;
       padding-right: 5px;
 
-      &.vzb-spreadsheet-table-time-in-rows {
-        td {
-          width: 20%;
-        }
-      }
       &.vzb-spreadsheet-table-fix-headers {
         .viz-spreadsheet-table {
           border-spacing: 0;
