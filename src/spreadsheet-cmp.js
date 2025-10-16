@@ -306,7 +306,10 @@ class _VizabiSpreadsheet extends BaseComponent {
     }
 
     function export_table_to_excel(id, type, fileName) {
-      const wb = XLSX.utils.table_to_book(document.getElementById(id), { sheet: fileName.slice(0, 31) });
+      const wb = XLSX.utils.table_to_book(document.getElementById(id), { 
+        sheet: fileName.slice(0, 31),
+        raw: true
+      });
       const wbout = XLSX.write(wb, { bookType: type, bookSST: true, type: "binary" });
       const fName = `${fileName}.${type}`;
       try {
