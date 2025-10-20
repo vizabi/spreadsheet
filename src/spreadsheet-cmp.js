@@ -14,6 +14,7 @@ import {
   runInAction
 } from "mobx";
 
+const KEY = Symbol.for("key");
 
 const charts = {
   BubbleChart: {label: "Bubbles (as Y axis)", toolsPageChartType: "bubbles", marker: "bubble", icon: "🏀", encoding: "y"},
@@ -213,6 +214,25 @@ class _VizabiSpreadsheet extends BaseComponent {
             if (Object.keys(d).length === 0) return;
             _this.MDL.selected.data.filter.toggle(d[0]);
           });
+
+        this.DOM.tableRows.selectAll(".viz-spreadsheet-keycell")
+          .on("contextmenu", (evt, _d) => {
+            evt.preventDefault();
+            const d = d3.select(evt.currentTarget.parentNode).datum();
+            if (Object.keys(d).length === 0) return;
+
+            const dataKey = {[KEY] : d[0]};
+            dataKey.name = this.__labelWithoutFrame(d[1].rows().next().value);
+            const toolNode = this.element.node();
+            const rootNode = this.root.element.node();
+
+            //set context menu
+            const contextMenuComponent = this.root.findChild({type: "MarkerContextmenu"});
+            contextMenuComponent.show(dataKey, {
+              x: evt.x - rootNode.offsetLeft - toolNode.offsetLeft - 5,
+              y: evt.y - rootNode.offsetTop - toolNode.offsetTop - 5
+            });
+          });
       }
 
       fillTable(exportTable, exportValueFormatter);
@@ -357,6 +377,20 @@ class _VizabiSpreadsheet extends BaseComponent {
     }
 
     export_table_to_excel("export_table_" + this.id, type, fileName);    
+  }
+
+  __labelWithoutFrame(d) {
+    const markerSpace = this.model.data.space;
+    if (typeof d.label == "object") 
+      return Object.entries(d.label)
+        .filter(([k, v]) => k != this.MDL.frame.data.concept)
+        //sort parts of the name along the marker space array, so we get geo, gender instead of gender, geo
+        .sort(([ak, av], [bk, bv]) => markerSpace.indexOf(ak) - markerSpace.indexOf(bk))
+        //add keys where values are numbers, such as "age: 69"
+        .map(([k, v]) => utils.isNumber(v) ? k + ": " + v : v)
+        .join(", ");
+    if (d.label != null) return "" + d.label;
+    return d[KEY];
   }
 
 }
