@@ -146,7 +146,22 @@
           .viz-spreadsheet-tablerow:nth-child(2n+3) td.viz-spreadsheet-keycell {
             background-color: $vzb-color-primary-lightest;
           }
-        
+
+          .viz-spreadsheet-tablerow {
+            &.selected {
+              background-color: $vzb-color-grey-light !important;
+              .viz-spreadsheet-keycell {
+                background-color: $vzb-color-grey-light !important;
+              }
+            }
+            &.highlighted {
+              background-color: $vzb-color-primary-dark !important;
+              .viz-spreadsheet-keycell {
+                  background-color: $vzb-color-primary-dark !important;
+              }
+            }
+          }
+
           tr.viz-spreadsheet-headrow {
             .viz-spreadsheet-keycell {
               z-index: 3;

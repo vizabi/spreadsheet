@@ -54,6 +54,8 @@ class _VizabiSpreadsheet extends BaseComponent {
       number: this.model.encoding.number,
       frame: this.model.encoding.frame,
       label: this.model.encoding.label,
+      selected: this.model.encoding.selected,
+      highlighted: this.model.encoding.highlighted
     };
   }
 
@@ -81,7 +83,26 @@ class _VizabiSpreadsheet extends BaseComponent {
     this.addReaction(this._drawTitle);
     this.addReaction(this._drawAboutSection);
     this.addReaction(this._drawActionsSection);
-    this.addReaction(this._drawDataTable);  
+    this.addReaction(this._drawDataTable); 
+    this.addReaction(this._updateHighlightSelected);
+  }
+
+  _updateHighlightSelected() {
+    const _highlighted = this.MDL.highlighted.data.filter;
+    const _selected = this.MDL.selected.data.filter;
+    
+    const classRow = "viz-spreadsheet-tablerow";
+    const classHeadRow = "viz-spreadsheet-headrow";
+    let addClass;
+
+    this.DOM.tableRows.attr("class", (d, i) => {
+        if (i === 0) return classHeadRow; //header row
+        addClass = "";
+        if (_highlighted.has(d[0])) addClass += " highlighted";
+        if (_selected.has(d[0])) addClass += " selected";
+
+        return classRow + addClass;
+      });
   }
 
   _drawTitle() {
@@ -142,41 +163,58 @@ class _VizabiSpreadsheet extends BaseComponent {
         .classed("viz-spreadsheet-table-export", true);
 
       function fillTable(tableSelector, _valueFormatter) {
-        tableSelector.selectAll("tr").data([{}, ..._this.dataMap.values()])
-          .enter().append("tr")
-          .attr("class", (d, i) => i ? "viz-spreadsheet-tablerow" : "viz-spreadsheet-headrow")
-          .each(function(row, rowIndex){
-            const example = rowIndex == 0 ? {} : (_this.pivot ? row.values().next().value : row );
-            d3.select(this).selectAll("td").data(KEYS.concat("label").concat(steps))
-              .enter().append("td")
-              .classed("viz-spreadsheet-keycell", (col,colIndex) => colIndex <= KEYS.length)
-              .text((col, colIndex) => {
-                if (_this.pivot) {
-                  if (rowIndex==0) {
-                    if (colIndex < KEYS.length) return col;
-                    if (colIndex === KEYS.length) return labelConcept;
-                    if (colIndex > KEYS.length) return timeFormatter(col[frameConcept]);
+        return tableSelector.selectAll("tr").data([{}, ..._this.dataMap.entries()])
+          .join(enter => enter.append("tr")
+            .attr("class", (d, i) => i ? "viz-spreadsheet-tablerow" : "viz-spreadsheet-headrow")
+            .each(function(row, rowIndex) {
+              const example = rowIndex == 0 ? {} : (_this.pivot ? row[1].values().next().value : row[1] );
+              d3.select(this).selectAll("td").data(KEYS.concat("label").concat(steps))
+                .enter().append("td")
+                .classed("viz-spreadsheet-keycell", (col,colIndex) => colIndex <= KEYS.length)
+                .text((col, colIndex) => {
+                  if (_this.pivot) {
+                    if (rowIndex==0) {
+                      if (colIndex < KEYS.length) return col;
+                      if (colIndex === KEYS.length) return labelConcept;
+                      if (colIndex > KEYS.length) return timeFormatter(col[frameConcept]);
+                    } else {
+                      if (colIndex < KEYS.length) return example[col];
+                      if (colIndex === KEYS.length) return _this._getLabelText(example);
+                      if (colIndex > KEYS.length) return _valueFormatter(row[1].get(col)?.number) || "";
+                    }
                   } else {
-                    if (colIndex < KEYS.length) return example[col];
-                    if (colIndex === KEYS.length) return _this._getLabelText(example);
-                    if (colIndex > KEYS.length) return _valueFormatter(row.get(col)?.number) || "";
+                    if (rowIndex==0) {
+                      if (colIndex < KEYS.length) return col;
+                      if (colIndex === KEYS.length) return labelConcept;
+                      if (colIndex > KEYS.length) return numberConceptId;
+                    } else {
+                      if (colIndex < KEYS.length) return col !== frameConcept ? row[1][col] : timeFormatter(row[1][frameConcept]);
+                      if (colIndex === KEYS.length) return _this._getLabelText(example);
+                      if (colIndex > KEYS.length) return _valueFormatter(row?.[1]?.number) || "";
+                    }
                   }
-                } else {
-                  if (rowIndex==0) {
-                    if (colIndex < KEYS.length) return col;
-                    if (colIndex === KEYS.length) return labelConcept;
-                    if (colIndex > KEYS.length) return numberConceptId;
-                  } else {
-                    if (colIndex < KEYS.length) return col !== frameConcept ? row[col] : timeFormatter(row[frameConcept]);
-                    if (colIndex === KEYS.length) return _this._getLabelText(example);
-                    if (colIndex > KEYS.length) return _valueFormatter(row?.number) || "";
-                  }
-                }
-              });
+                });
+            })
+          );
+      }
+
+      this.DOM.tableRows = fillTable(table, valueFormatter);
+      if (this.pivot) {
+        this.DOM.tableRows
+          .on("mouseover", (evt, d) => {
+            if (Object.keys(d).length === 0) return;
+            _this.MDL.highlighted.data.filter.set(d[0]);
+          })
+          .on("mouseout", (evt, d) => {
+            if (Object.keys(d).length === 0) return;
+            _this.MDL.highlighted.data.filter.delete(d[0]);
+          })
+          .on("click", (evt, d) => {
+            if (Object.keys(d).length === 0) return;
+            _this.MDL.selected.data.filter.toggle(d[0]);
           });
       }
 
-      fillTable(table, valueFormatter);
       fillTable(exportTable, exportValueFormatter);
 
       if (this.fixHeaders && this.pivot && KEYS.length > 1) {
