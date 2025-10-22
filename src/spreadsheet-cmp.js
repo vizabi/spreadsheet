@@ -16,11 +16,6 @@ import {
 
 const KEY = Symbol.for("key");
 
-const charts = {
-  BubbleChart: {label: "Bubbles (as Y axis)", toolsPageChartType: "bubbles", marker: "bubble", icon: "🏀", encoding: "y"},
-  ExtApiMap: {label: "Map (as area color)", toolsPageChartType: "extapimap", marker: "bubble", icon: "🗺", encoding: "color_map"}
-};
-
 class _VizabiSpreadsheet extends BaseComponent {
   constructor (config) {
 
@@ -327,12 +322,19 @@ class _VizabiSpreadsheet extends BaseComponent {
     this.DOM.actions.append("div")
       .attr("class", "vzb-spreadsheet-viewas")
       .text("Send to:")
-      .selectAll("a").data(Object.keys(charts))
+      .selectAll("a").data(this.ui.sendTools)
       .enter().append("a")
-      .text(chart=>charts[chart].icon + " " + charts[chart].label)
-      .attr("title", chart=>charts[chart].label)
+      .text(d => d.icon + " " + d.label)
       .attr("target", "_blank")
-      .attr("href", chart => this._viewAs(charts[chart], concept)); 
+      .attr("href", ".")
+      .on("click", (evt, d) => {
+        let hRef = location.href
+          .replace("chart-type=spreadsheet", `chart-type=${d.tool}`)
+          .replace("$model$markers$spreadsheet", `$model$markers$${d.marker}`)
+          .replace("number$data$concept", `${d.encoding}$data$concept`);
+        if (d.selected) hRef =  hRef.replace("selected$data$filter", `${d.selected}$show:false&data$filter`);
+        d3.select(evt.currentTarget).attr("href", hRef);
+      });
 
     this.DOM.actions.append("div")
       .attr("class", "vzb-spreadsheet-downloadas")
