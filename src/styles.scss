@@ -149,9 +149,9 @@
 
           .viz-spreadsheet-tablerow {
             &.selected {
-              background-color: $vzb-color-grey-light !important;
+              background-color: $vzb-color-primary-light !important;
               .viz-spreadsheet-keycell {
-                background-color: $vzb-color-grey-light !important;
+                background-color: $vzb-color-primary-light !important;
               }
             }
             &.highlighted {

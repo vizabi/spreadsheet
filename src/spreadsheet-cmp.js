@@ -330,7 +330,7 @@ class _VizabiSpreadsheet extends BaseComponent {
       .on("click", (evt, d) => {
         let hRef = location.href
           .replace("chart-type=spreadsheet", `chart-type=${d.tool}`)
-          .replace("$model$markers$spreadsheet", `$model$markers$${d.marker}`)
+          .replace("model$markers$spreadsheet", `model$markers$${d.marker}`)
           .replace("number$data$concept", `${d.encoding}$data$concept`);
         if (d.selected) hRef =  hRef.replace("selected$data$filter", `${d.selected}$show:false&data$filter`);
         d3.select(evt.currentTarget).attr("href", hRef);
