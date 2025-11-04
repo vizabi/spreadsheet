@@ -5,17 +5,6 @@
 
 .vzb-tool {
   
-  .vzb-dialogs {
-    position: absolute;
-    width: 100%;
-    justify-items: end;
-    
-    .vzb-dialogs-dialog {
-      position: static;
-      width: auto;
-    }
-  }
-
   .vzb-spreadsheet {
     @extend %vzb-chart-wrapper;
     
