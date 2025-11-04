@@ -92,13 +92,13 @@ class _VizabiSpreadsheet extends BaseComponent {
     let addClass;
 
     this.DOM.tableRows.attr("class", (d, i) => {
-        if (i === 0) return classHeadRow; //header row
-        addClass = "";
-        if (_highlighted.has(d[0])) addClass += " highlighted";
-        if (_selected.has(d[0])) addClass += " selected";
+      if (i === 0) return classHeadRow; //header row
+      addClass = "";
+      if (_highlighted.has(d[0])) addClass += " highlighted";
+      if (_selected.has(d[0])) addClass += " selected";
 
-        return classRow + addClass;
-      });
+      return classRow + addClass;
+    });
   }
 
   _drawTitle() {
@@ -211,13 +211,13 @@ class _VizabiSpreadsheet extends BaseComponent {
           });
 
         this.DOM.tableRows.selectAll(".viz-spreadsheet-keycell")
-          .on("contextmenu", (evt, _d) => {
+          .on("contextmenu", (evt) => {
             evt.preventDefault();
             const d = d3.select(evt.currentTarget.parentNode).datum();
             if (Object.keys(d).length === 0) return;
 
             const dataKey = {[KEY] : d[0]};
-            dataKey.name = this.__labelWithoutFrame(d[1].rows().next().value);
+            dataKey.name = this._getLabelText(d[1].rows().next().value);
             const toolNode = this.element.node();
             const rootNode = this.root.element.node();
 
@@ -241,59 +241,14 @@ class _VizabiSpreadsheet extends BaseComponent {
         keysSelection.each(function(d, i) {
           if (i == 0) return;
           d3.select(this).style("left", headerWidths[i - 1] + "px");
-        })
+        });
       }
     });
-  }
-
-  _getLabelText(d) {
-    const markerSpace = this.model.data.space;
-    if (typeof d.label == "object") 
-      return Object.entries(d.label)
-        .filter(([k, v]) => k != this.MDL.frame.data.concept)
-        //sort parts of the name along the marker space array, so we get geo, gender instead of gender, geo
-        .sort(([ak, av], [bk, bv]) => markerSpace.indexOf(ak) - markerSpace.indexOf(bk))
-        //add keys where values are numbers, such as "age: 69"
-        .map(([k, v]) => utils.isNumber(v) ? k + ": " + v : v)
-        .join(", ");
-    if (d.label != null) return "" + d.label;
-    return d[Symbol.for("key")];
   }
 
   _drawAboutSection() {
     const concept = this.MDL.number.data.conceptProps;
     if (!concept) return;
-
-    //    const dataAvailable = this.model.data.dataAvailability.datapoints
-    //      .reduce((result, item) => {
-    //        if (item.value !== which) return result;
-    //        result.push({
-    //          key: [...item.key].join(","),
-    //          value: [...item.key]
-    //        })
-    //        return result;
-    //      }, []);
-    //
-    //    let viewAbout = this.element.select("#vzb-spreadsheet-content").select("#about");
-    //
-    //    const selectorEl = viewAbout.append("div").style("display", dataAvailable.length > 1 ? "block" : "none")
-    //      .call(selection => selection.append("div").classed("vzb-spreadsheet-conceptkey", true).text("dimensions"))
-    //      .append("div").classed("vzb-spreadsheet-conceptvalue", true)
-    //      .append("div").classed("vzb-spreadsheet-select", true)
-    //      .append("select").on("change", function(evt) {
-    //        const d = d3.select(this.options[this.options.selectedIndex]).datum();
-    //        _this.model.marker.setSpace(d.value);
-    //        utils.defer(() => _this.model.marker.startLoading());
-    //      })
-    //    selectorEl.selectAll("option").data(dataAvailable, d => d.key).enter().append("option").text(d => d.key);
-    //
-    //    const allKeys = utils.unique(this.model.marker._getAllDimensions()).join(",");
-    //    const selectedIndex = dataAvailable.map(d => d.key).indexOf(allKeys);
-    //    selectorEl.property("selectedIndex", selectedIndex === -1 ? 0: selectedIndex);
-    //    if (selectedIndex === -1) selectorEl.dispatch("change");
-    //
-    //    this.model.marker.number.setWhich({concept: which, dataSource: "data"});
-
     
     this.DOM.about.selectAll("div").remove();
     
@@ -307,8 +262,6 @@ class _VizabiSpreadsheet extends BaseComponent {
         return '<span class="vzb-spreadsheet-conceptkey">' + d + ":</span>" +
         '<span class="vzb-spreadsheet-conceptvalue">' + value + "</span>";
       });
-
-
   }
 
   _drawActionsSection() {
@@ -374,20 +327,20 @@ class _VizabiSpreadsheet extends BaseComponent {
       const fName = `${fileName}.${type}`;
       try {
         saveAs(new Blob([s2ab(wbout)],{type:"application/octet-stream"}), fName);
-      } catch(e) { if(typeof console != "undefined") console.log(e, wbout); }
+      } catch(e) { throw(e, wbout); }
       return wbout;
     }
 
     export_table_to_excel("export_table_" + this.id, type, fileName);    
   }
 
-  __labelWithoutFrame(d) {
+  _getLabelText(d) {
     const markerSpace = this.model.data.space;
     if (typeof d.label == "object") 
       return Object.entries(d.label)
-        .filter(([k, v]) => k != this.MDL.frame.data.concept)
+        .filter(([k]) => k != this.MDL.frame.data.concept)
         //sort parts of the name along the marker space array, so we get geo, gender instead of gender, geo
-        .sort(([ak, av], [bk, bv]) => markerSpace.indexOf(ak) - markerSpace.indexOf(bk))
+        .sort(([ak], [bk]) => markerSpace.indexOf(ak) - markerSpace.indexOf(bk))
         //add keys where values are numbers, such as "age: 69"
         .map(([k, v]) => utils.isNumber(v) ? k + ": " + v : v)
         .join(", ");
