@@ -4,6 +4,10 @@
 @import "../node_modules/@vizabi/shared-components/src/styles/vizabi-old/_chart.scss";
 
 .vzb-tool {
+  // Default fallback fonts (used if custom properties not set)
+  $vzb-font-family-mono-fallback: "Courier New", monospace;
+  // Use CSS custom properties with fallbacks
+  $vzb-font-family-mono: var(--vzb-font-family-mono, #{$vzb-font-family-mono-fallback});
   
   .vzb-spreadsheet {
     @extend %vzb-chart-wrapper;
@@ -214,7 +218,7 @@
         padding-left: inherit;
       }
       td {
-        font-family: monospace;
+        font-family: $vzb-font-family-mono;
         text-align: right;
         padding-left: 10px;
       }
