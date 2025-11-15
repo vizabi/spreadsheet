@@ -91,7 +91,7 @@ class _VizabiSpreadsheet extends BaseComponent {
     const classHeadRow = "viz-spreadsheet-headrow";
     let addClass;
 
-    this.DOM.tableRows.attr("class", (d, i) => {
+    this.DOM.tableRows?.attr("class", (d, i) => {
       if (i === 0) return classHeadRow; //header row
       addClass = "";
       if (_highlighted.has(d[0])) addClass += " highlighted";

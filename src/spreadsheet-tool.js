@@ -92,18 +92,28 @@ Spreadsheet.DEFAULT_UI = {
     fixHeaders: true,
     pivot: true,
     opacitySelectDim: 0.3,
+    sendTools: []
   },
 };
 
 Spreadsheet.DEFAULT_CORE = {
   requiredEncodings: ["number"],
   encoding: {
+    "selected": {
+      modelType: "selection"
+    },
+    "highlighted": {
+      modelType: "selection"
+    },
+    "superhighlighted": {
+      modelType: "selection"
+    },
     "number": {
       data: {
         constant: "true"
       },
       scale: {
-        allowedTypes: ["linear", "log", "genericLog", "pow"]
+        allowedTypes: null
       }
     },
     "label": {
@@ -113,6 +123,15 @@ Spreadsheet.DEFAULT_CORE = {
     },
     "frame": {
       modelType: "frame"
+    },
+    "color": {
+      data: {
+        constant: "_default"
+      },
+      scale: {
+        modelType: "color",
+        type: "ordinal"
+      }
     }
   }
 };
