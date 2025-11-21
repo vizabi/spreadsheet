@@ -17,8 +17,8 @@ export default class Spreadsheet extends BaseComponent {
 
   constructor(config){
 
-    config.Vizabi.utils.applyDefaults(config.model.markers.spreadsheet.config, Spreadsheet.DEFAULT_CORE);    
-    //clear constant if concept is set
+    config.Vizabi.utils.applyDefaults(config.model.markers?.spreadsheet?.config || {}, Spreadsheet.DEFAULT_MODEL.spreadsheet);    
+    //clear constant if concept is set TODO: move to encoding model probably?
     if (config.model.markers.spreadsheet.config.encoding.number.data.concept) {
       config.model.markers.spreadsheet.config.encoding.number.data.constant = undefined;
     }
@@ -77,6 +77,9 @@ export default class Spreadsheet extends BaseComponent {
 
 
 Spreadsheet.DEFAULT_UI = {
+  "locale": { "id": "en", "shortNumberFormat": true },
+  "layout": { "projector": false },
+
   "buttons": {
     "buttons": ["markercontrols", "pivot", "moreoptions", "sidebarcollapse"]
   },
@@ -86,51 +89,71 @@ Spreadsheet.DEFAULT_UI = {
       "sidebar": ["markercontrols"],
       "moreoptions": ["about"]
     },
-    "markercontrols": {}
+    "markercontrols": {
+      "disableSlice": true,
+      "disableAddRemoveGroups": true,
+      "primaryDim": null,
+      "drilldown": null,
+      "shortcutForSwitch": false,
+      "shortcutForSwitch_allow": null
+    }
   },
-  chart: {
-    fixHeaders: true,
-    pivot: true,
-    opacitySelectDim: 0.3,
-    sendTools: []
+  "marker-contextmenu": {
+    "primaryDim": null,
+    "drilldown": null,
+  },
+  "tree-menu": {
+    "showDataSources": false,
+    "folderStrategyByDataset": {}
+  },
+  "chart": {
+    "fixHeaders": true,
+    "pivot": true,
+    "opacitySelectDim": 0.3,
+    "sendTools": []
   },
 };
 
-Spreadsheet.DEFAULT_CORE = {
-  requiredEncodings: ["number"],
-  encoding: {
-    "selected": {
-      modelType: "selection"
-    },
-    "highlighted": {
-      modelType: "selection"
-    },
-    "superhighlighted": {
-      modelType: "selection"
-    },
-    "number": {
-      data: {
-        constant: "true"
+Spreadsheet.DEFAULT_MODEL = {
+  "spreadsheet": {
+    "requiredEncodings": ["number"],
+    "encoding": {
+      "show": {
+        "modelType": "selection"
       },
-      scale: {
-        allowedTypes: null
-      }
-    },
-    "label": {
-      data: {
-        modelType: "entityPropertyDataConfig"
-      }
-    },
-    "frame": {
-      modelType: "frame"
-    },
-    "color": {
-      data: {
-        constant: "_default"
+      "selected": {
+        "modelType": "selection"
       },
-      scale: {
-        modelType: "color",
-        type: "ordinal"
+      "highlighted": {
+        "modelType": "selection"
+      },
+      "superhighlighted": {
+        "modelType": "selection"
+      },
+      "number": {
+        "data": {
+          "constant": "true"
+        },
+        "scale": {
+          "allowedTypes": null
+        }
+      },
+      "label": {
+        "data": {
+          "modelType": "entityPropertyDataConfig"
+        }
+      },
+      "frame": {
+        "modelType": "frame"
+      },
+      "color": {
+        "data": {
+          "constant": "_default"
+        },
+        "scale": {
+          "modelType": "color",
+          "type": "ordinal"
+        }
       }
     }
   }
