@@ -132,7 +132,9 @@ Spreadsheet.DEFAULT_MODEL = {
       },
       "number": {
         "data": {
-          "constant": "true"
+          "constant": "true",
+          "concept": { "filter": { "concept_type": { "$in": ["measure", "string"]} } },
+          "allow": { "concept": { "filter": { "concept_type": { "$in": ["measure", "string"] } } } }
         },
         "scale": {
           "allowedTypes": null
